@@ -669,196 +669,8 @@
         </div>
     </div>
 
-    <div class="recoder_mode_div hidden">
-        <div class="radio-group">
-            <div class="radio-option">
-                <input name="recoder_mode" onclick="on_recoder_mode_change()" type="radio" value="mic" checked id="mic-radio">
-                <label for="mic-radio">麦克风</label>
-            </div>
-            <div class="radio-option">
-                <input name="recoder_mode" onclick="on_recoder_mode_change()" type="radio" value="file" id="file-radio">
-                <label for="file-radio">文件</label>
-            </div>
-        </div>
-    </div>
-
-    <!-- 客户机状态显示 -->
-    <div id="client-status-display" style="display: none; margin-bottom: 16px; padding: 8px; background-color: #f0f8ff; border-radius: 8px; border: 1px solid #d1e5f9;">
-        <span>当前客户机状态: </span><span id="current-client-status">等待连接...</span>
-    </div>
-
-    <!-- 文本输入和发送区域 -->
-    <div class="container" style="margin-bottom: 15px; padding: 15px;">
-        <div style="display: flex; flex-direction: column; gap: 10px;">
-            <div style="display: flex; gap: 10px;">
-                <input type="text" id="text-input" placeholder="请输入要发送的文本..." style="flex: 1; padding: 12px; border: 1px solid var(--border-color); border-radius: 20px; font-size: 14px;">
-                <div style="display: flex; gap: 5px;">
-                    <select id="message-type" style="padding: 10px; border: 1px solid var(--border-color); border-radius: 20px; background-color: var(--background-light); font-size: 14px;">
-                        <option value="echo">复述</option>
-                        <option value="chat">对话</option>
-                    </select>
-                    <button id="send-text-btn" style="padding: 10px 20px; background-color: var(--primary-color); color: white; border: none; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 500;">发送</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 状态提示 -->
-    <div id="info_div" style="margin: 15px 0; text-align: center; font-size: 14px; padding: 10px; border-radius: 20px; background-color: rgba(67, 97, 238, 0.05);">请选择接收端后开始语音识别</div>
-
-    <!-- 结果区域 -->
-    <div class="container">
-
-        <div class="control-section" style="margin-bottom: 20px;">
-            <div style="display: flex; flex-direction: column; gap: 15px;">
-                <div>
-                    <h4 style="text-align: center; margin-bottom: 10px; font-size: 15px;">语音识别结果</h4>
-                    <textarea id="varArea" readonly placeholder="识别结果将显示在这里..." style="height: auto; box-shadow: 0 2px 8px rgba(0,0,0,0.05);"></textarea>
-                </div>
-
-                <div style=" display: none;">
-                    <h4 style="text-align: center; margin-bottom: 10px; font-size: 15px;">消息记录</h4>
-                    <div id="message-container" class="message-container"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 按钮区域 -->
-    <div class="button-group" style="display: none;">
-        <button id="btnConnect" style="display: none;">连接</button>
-        <button id="btnStart" style="display: none;">开始</button>
-        <button id="btnStop" style="display: none;" disabled>停止</button>
-    </div>
-    <div class="press-hold-container" style="margin: 20px 0;">
-        <button id="btnPressAndHold" class="press-hold-button">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                <line x1="12" y1="19" x2="12" y2="23"></line>
-                <line x1="8" y1="23" x2="16" y2="23"></line>
-            </svg>
-        </button>
-    </div>
-
-    <!-- 音频播放器 -->
-    <audio id="audio_record" type="audio/wav" controls></audio>
-
-    <!-- 音量相关控件 -->
-    <div class="volume-controls" style="margin-top: 15px;">
-        <!-- 播放音量指示器 -->
-        <!-- <div style="margin-bottom: 10px;">
-            <div style="font-size:12px;color:#666;margin-bottom:5px;">播放音量</div>
-            <div id="audio-volume-indicator" style="background:#f0f0f0;border-radius:4px;height:6px;width:100%;overflow:hidden;">
-                <div id="audio-volume-bar" style="background:#2ec4b6;height:100%;width:0%;transition:width 0.1s;"></div>
-            </div>
-        </div> -->
-        
-        <!-- 音量阈值控制 - 改为开关 -->
-        <div id="volume-threshold-control" style="margin-top: 15px;">
-            <div class="switch-container" style="justify-content: space-between;">
-                <label for="speaker-detection-toggle" style="margin: 0; font-size: 14px; color: var(--text-secondary);">扬声器检测 (自动暂停/恢复识别)</label>
-                <label class="switch">
-                    <input type="checkbox" id="speaker-detection-toggle" checked>
-                    <span class="slider"></span>
-                </label>
-            </div>
-            <!-- 隐藏的阈值显示，用于调试和保持兼容性 -->
-            <span id="threshold-value-display" style="display:none;">1</span>
-            <input type="range" id="threshold-slider" min="1" max="100" step="99" value="1" style="display:none;">
-        </div>
-        
-        <!-- 手动暂停/恢复按钮 -->
-        <!-- <div style="margin-top:15px;text-align:center;">
-            <button id="manual-pause-button" style="padding:8px 16px;background:#ff9f1c;color:white;border:none;border-radius:4px;cursor:pointer;">暂停识别</button>
-        </div> -->
-
-        <!-- 清空历史记录选项 -->
-        <div id="clear-history-control" style="margin-top: 15px; display: none;">
-            <div class="switch-container" style="justify-content: space-between;">
-                <label for="clear-history-toggle" style="margin: 0; font-size: 14px; color: var(--text-secondary);">每次进入页面时清空历史对话</label>
-                <label class="switch">
-                    <input type="checkbox" id="clear-history-toggle" checked>
-                    <span class="slider"></span>
-                </label>
-            </div>
-        </div>
-    </div>
-
-    <!-- 高级设置区域 -->
-    <div class="divider"></div>
-
-    <div id="advanced-settings" class="hidden">
-        <!-- ASR模型选择 -->
-        <div id="mic_mode_div" class="control-section">
-            <h4>选择ASR模型模式</h4>
-            <div class="radio-group">
-                <div class="radio-option">
-                    <input name="asr_mode" type="radio" value="2pass" id="2pass-radio" checked>
-                    <label for="2pass-radio">2pass</label>
-                </div>
-                <div class="radio-option">
-                    <input name="asr_mode" type="radio" value="online" id="online-radio">
-                    <label for="online-radio">Online</label>
-                </div>
-                <div class="radio-option">
-                    <input name="asr_mode" type="radio" value="offline" id="offline-radio">
-                    <label for="offline-radio">Offline</label>
-                </div>
-            </div>
-        </div>
-
-        <!-- 文件上传 -->
-        <div id="rec_mode_div" class="control-section hidden">
-            <h4>选择音频文件</h4>
-            <div class="file-upload">
-                <label for="upfile" class="file-upload-label">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; vertical-align: text-bottom;">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                        <polyline points="17 8 12 3 7 8"/>
-                        <line x1="12" y1="3" x2="12" y2="15"/>
-                    </svg>
-                    选择音频文件
-                </label>
-                <input type="file" id="upfile" accept="audio/*">
-            </div>
-        </div>
-
-        <!-- ITN选项 -->
-        <div id="use_itn_div" class="control-section">
-            <h4>反向文本归一化 (ITN)</h4>
-            <div class="radio-group">
-                <div class="radio-option">
-                    <input name="use_itn" type="radio" value="false" id="itn-false" checked>
-                    <label for="itn-false">否</label>
-                </div>
-                <div class="radio-option">
-                    <input name="use_itn" type="radio" value="true" id="itn-true">
-                    <label for="itn-true">是</label>
-                </div>
-            </div>
-        </div>
-
-
-        <!-- 热词 -->
-        <div class="control-section hidden">
-            <h4>热词设置</h4>
-            <p style="margin: 0 0 8px 0; color: var(--text-secondary); font-size: 13px;">每行一个关键词，空格分隔权重，例如 "阿里巴巴 20"</p>
-            <textarea id="varHot" rows="3">阿里巴巴 20
-hello world 40</textarea>
-        </div>
-    </div>
-
-    <!-- 显示/隐藏高级设置按钮 -->
-    <button id="toggle-advanced" style="width: 100%; background-color: var(--background-dark); color: var(--text-primary);">
-        显示高级设置
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 8px; vertical-align: text-bottom;">
-            <polyline points="6 9 12 15 18 9"></polyline>
-        </svg>
-    </button>
 </div>
 
-<script src="config.js" charset="UTF-8"></script>
 <script src="recorder-core.js" charset="UTF-8"></script>
 <script src="wav.js" charset="UTF-8"></script>
 <script src="pcm.js" charset="UTF-8"></script>
@@ -867,28 +679,28 @@ hello world 40</textarea>
 <!--<script src="../client.js"></script>-->
 <script>
     // 高级设置切换
-    document.getElementById('toggle-advanced').addEventListener('click', function() {
-        const advancedSettings = document.getElementById('advanced-settings');
-        const isHidden = advancedSettings.classList.contains('hidden');
+    // document.getElementById('toggle-advanced').addEventListener('click', function() {
+    //     const advancedSettings = document.getElementById('advanced-settings');
+    //     const isHidden = advancedSettings.classList.contains('hidden');
 
-        if (isHidden) {
-            advancedSettings.classList.remove('hidden');
-            this.innerHTML = `
-                    隐藏高级设置
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 8px; vertical-align: text-bottom;">
-                        <polyline points="18 15 12 9 6 15"></polyline>
-                    </svg>
-                `;
-        } else {
-            advancedSettings.classList.add('hidden');
-            this.innerHTML = `
-                    显示高级设置
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 8px; vertical-align: text-bottom;">
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
-                `;
-        }
-    });
+    //     if (isHidden) {
+    //         advancedSettings.classList.remove('hidden');
+    //         this.innerHTML = `
+    //                 隐藏高级设置
+    //                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 8px; vertical-align: text-bottom;">
+    //                     <polyline points="18 15 12 9 6 15"></polyline>
+    //                 </svg>
+    //             `;
+    //     } else {
+    //         advancedSettings.classList.add('hidden');
+    //         this.innerHTML = `
+    //                 显示高级设置
+    //                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 8px; vertical-align: text-bottom;">
+    //                     <polyline points="6 9 12 15 18 9"></polyline>
+    //                 </svg>
+    //             `;
+    //     }
+    // });
 
     // WebSocket相关变量
     window.socket = null;
@@ -909,8 +721,7 @@ hello world 40</textarea>
 
     // 初始化按钮状态
     document.addEventListener('DOMContentLoaded', function() {
-        // 注释掉不存在的元素引用
-        /*
+        /* 注释掉不存在的元素btnStop和btnStart
         const btnStop = document.getElementById('btnStop');
         btnStop.disabled = true;
 
@@ -925,152 +736,41 @@ hello world 40</textarea>
             document.getElementById('btnStart').disabled = false;
         });
         */
-
-        // 按住说话按钮事件处理
-        const btnPressAndHold = document.getElementById('btnPressAndHold');
-        if (btnPressAndHold) {
-            btnPressAndHold.addEventListener('mousedown', function() {
-                // 按下时连接并开始识别
-                start();
-                record();
-                this.classList.add('recording');
-            });
-
-            btnPressAndHold.addEventListener('mouseup', function() {
-                // 松开时停止识别
-                window.stop();
-                sendMessage(window.full_result);
-                this.classList.remove('recording');
-            });
-
-            // 处理触摸事件，适用于移动设备
-            btnPressAndHold.addEventListener('touchstart', function(e) {
-                e.preventDefault(); // 防止触发其他事件
-                start();
-                record();
-                this.classList.add('recording');
-            });
-
-            btnPressAndHold.addEventListener('touchend', function(e) {
-                e.preventDefault(); // 防止触发其他事件
-                window.stop();
-                sendMessage(window.full_result);
-                this.classList.remove('recording');
-            });
-        }
-
-        // 处理清空历史记录选项
-        const clearHistoryToggle = document.getElementById('clear-history-toggle');
-        if (clearHistoryToggle) {
-            // 从localStorage加载保存的设置
-            try {
-                const savedSetting = localStorage.getItem('shouldClearHistoryOnLoad');
-                if (savedSetting !== null) {
-                    const shouldClear = savedSetting === 'true';
-                    clearHistoryToggle.checked = shouldClear;
-                    window.shouldClearHistoryOnLoad = shouldClear;
-                }
-            } catch (e) {
-                console.error('加载清空历史设置失败:', e);
-            }
-
-            // 监听变化
-            clearHistoryToggle.addEventListener('change', function() {
-                const shouldClear = this.checked;
-                // 调用全局函数设置
-                if (window.setClearHistoryOnLoad) {
-                    window.setClearHistoryOnLoad(shouldClear);
-                } else {
-                    window.shouldClearHistoryOnLoad = shouldClear;
-                    try {
-                        localStorage.setItem('shouldClearHistoryOnLoad', shouldClear);
-                    } catch (e) {
-                        console.error('保存清空历史设置失败:', e);
-                    }
-                }
-
-                console.log(`已设置页面加载时${shouldClear ? '清空' : '保留'}历史对话消息`);
-            });
-        }
-
         // 连接按钮点击事件
-        if (connectBtn) {
-            connectBtn.addEventListener('click', () => {
-                const userIdInput = document.getElementById('user-id');
-                if (userIdInput) {
-                    window.userId = userIdInput.value.trim();
-                    if (!window.userId) {
-                        alert('请输入用户ID');
-                        return;
-                    }
-                }
-                
-                window.connectToServer(window.userId);
-            });
-        }
+        connectBtn.addEventListener('click', () => {
+            window.userId = document.getElementById('user-id').value.trim();
+            if (!window.userId) {
+                alert('请输入用户ID');
+                return;
+            }
+            
+            window.connectToServer(window.userId);
+        });
         
         // 刷新客户机列表按钮点击事件
-        if (refreshBtn) {
-            refreshBtn.addEventListener('click', () => {
-                if (window.socket && window.socket.readyState === WebSocket.OPEN) {
-                    window.socket.send(JSON.stringify({ refresh_clients: true }));
-                    window.addMessage('系统', '正在刷新接收端列表...', 'system');
-                } else {
-                    alert('未连接到服务器');
-                    window.addMessage('系统', '未连接到服务器，无法刷新列表', 'system');
-                }
-            });
-        }
+        refreshBtn.addEventListener('click', () => {
+            if (window.socket && window.socket.readyState === WebSocket.OPEN) {
+                window.socket.send(JSON.stringify({ refresh_clients: true }));
+                window.addMessage('系统', '正在刷新接收端列表...', 'system');
+            } else {
+                alert('未连接到服务器');
+                window.addMessage('系统', '未连接到服务器，无法刷新列表', 'system');
+            }
+        });
         
         // 断开连接按钮点击事件
-        if (disconnectBtn) {
-            disconnectBtn.addEventListener('click', () => {
-                if (window.socket && window.socket.readyState === WebSocket.OPEN) {
-                    window.socket.close();
-                }
-            });
-        }
+        disconnectBtn.addEventListener('click', () => {
+            if (window.socket && window.socket.readyState === WebSocket.OPEN) {
+                window.socket.close();
+            }
+        });
+        
         
         window.connectToServer(window.userId);
-
-        // 添加文本发送按钮事件处理
-        const sendTextBtn = document.getElementById('send-text-btn');
-        const textInput = document.getElementById('text-input');
-        const messageType = document.getElementById('message-type');
-        
-        if (sendTextBtn && textInput) {
-            sendTextBtn.addEventListener('click', function() {
-                const text = textInput.value.trim();
-                if (text) {
-                    // 发送文本消息
-                    window.sendTextMessage(text, messageType.value);
-                    // 清空输入框
-                    textInput.value = '';
-                }
-            });
-            
-            // 添加回车键发送功能
-            textInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    sendTextBtn.click();
-                }
-            });
-        }
-        
-        // 添加类型选择器变更事件
-        if (messageType) {
-            messageType.addEventListener('change', function() {
-                const type = messageType.value;
-                // 发送类型变更消息
-                window.sendTypeChange(type);
-            });
-        }
     });
 
     // 连接到服务器
     window.connectToServer = function(userId) {
-        // const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        // const host = '192.168.3.188:8000';
         const wsUrl = `${window.wsProtocol}://${window.host}/ws/user/${userId}`;
 
         // 关闭现有连接
@@ -1082,17 +782,12 @@ hello world 40</textarea>
         
         window.socket.onopen = () => {
             console.log('已连接到服务器');
-            if (statusElement) {
-                statusElement.textContent = '状态: 已连接';
-                statusElement.className = 'status status-connected';
-            }
-            if (connectBtn) connectBtn.disabled = true;
-            if (disconnectBtn) disconnectBtn.disabled = false;
-            if (clientSelectionSection) clientSelectionSection.classList.remove('hidden');
-            
-            const infoDiv = document.getElementById('info_div');
-            if (infoDiv) infoDiv.textContent = '已连接服务器，等待接收端连接';
-            
+            statusElement.textContent = '状态: 已连接';
+            statusElement.className = 'status status-connected';
+            connectBtn.disabled = true;
+            disconnectBtn.disabled = false;
+            clientSelectionSection.classList.remove('hidden');
+            document.getElementById('info_div').textContent = '已连接服务器，等待接收端连接';
             if (currentClientStatus) currentClientStatus.textContent = '已连接服务器，等待接收端';
             
             // 添加连接成功消息
@@ -1128,23 +823,18 @@ hello world 40</textarea>
                     window.selectedClientId = data.client_id;
                     if (currentClientElement) currentClientElement.textContent = window.selectedClientId;
                     console.log(`已选择接收端: ${window.selectedClientId}`);
-                    
-                    const infoDiv = document.getElementById('info_div');
-                    if (infoDiv) infoDiv.textContent = `已连接接收端，按住麦克风开始说话`;
-                    
+                    document.getElementById('info_div').textContent = `已连接接收端，按住麦克风开始说话`;
                     if (currentClientStatus) currentClientStatus.textContent = `已连接到接收端: ${window.selectedClientId}`;
-                    
-                    // 注释掉不存在的元素引用
-                    // document.getElementById('btnStart').disabled = false;
+                    /* 注释掉不存在的元素引用
+                    document.getElementById('btnStart').disabled = false;
+                    */
                     
                     // 添加选择成功消息
                     window.addMessage('系统', `已选择接收端: ${window.selectedClientId}`, 'system');
                 } else {
                     console.error('选择接收端失败');
                     if (currentClientStatus) currentClientStatus.textContent = '选择接收端失败';
-                    
-                    const infoDiv = document.getElementById('info_div');
-                    if (infoDiv) infoDiv.textContent = '选择接收端失败，请重试';
+                    document.getElementById('info_div').textContent = '选择接收端失败，请重试';
                     
                     // 添加选择失败消息
                     window.addMessage('系统', '选择接收端失败', 'system');
@@ -1153,10 +843,6 @@ hello world 40</textarea>
                 console.log(`消息已发送到接收端: ${data.client_id}`);
                 // 添加消息发送成功信息
                 window.addMessage('系统', `消息已发送到接收端: ${data.client_id}`, 'system');
-            } else if (data.type === 'type_change_sent') {
-                console.log(`类型变更消息已发送到接收端: ${data.client_id}`);
-                // 添加类型变更成功消息
-                window.addMessage('系统', `类型变更消息已发送到接收端: ${data.client_id}`, 'system');
             } else if (data.type === 'client_disconnected') {
                 console.log(`接收端已断开连接: ${data.client_id}`);
                 window.addMessage('系统', `接收端已断开连接: ${data.client_id}`, 'system');
@@ -1164,14 +850,9 @@ hello world 40</textarea>
                 if (window.selectedClientId === data.client_id) {
                     window.selectedClientId = null;
                     if (currentClientElement) currentClientElement.textContent = '无';
-                    
-                    const infoDiv = document.getElementById('info_div');
-                    if (infoDiv) infoDiv.textContent = '接收端已断开连接，请重新选择';
-                    
+                    document.getElementById('info_div').textContent = '接收端已断开连接，请重新选择';
                     if (currentClientStatus) currentClientStatus.textContent = '接收端已断开，等待新连接';
-                    
-                    // 注释掉不存在的元素引用
-                    /*
+                    /* 注释掉不存在的元素引用
                     document.getElementById('btnStart').disabled = true;
                     document.getElementById('btnStop').disabled = true;
                     */
@@ -1181,9 +862,7 @@ hello world 40</textarea>
             } else if (data.type === 'error') {
                 console.error(`WebSocket错误: ${data.message}`);
                 if (currentClientStatus) currentClientStatus.textContent = `错误: ${data.message}`;
-                
-                const infoDiv = document.getElementById('info_div');
-                if (infoDiv) infoDiv.textContent = `错误: ${data.message}`;
+                document.getElementById('info_div').textContent = `错误: ${data.message}`;
                 
                 // 添加错误消息
                 window.addMessage('错误', data.message, 'system');
@@ -1192,23 +871,15 @@ hello world 40</textarea>
         
         window.socket.onclose = () => {
             console.log('与服务器的连接已关闭');
-            if (statusElement) {
-                statusElement.textContent = '状态: 未连接';
-                statusElement.className = 'status status-disconnected';
-            }
-            if (connectBtn) connectBtn.disabled = false;
-            if (disconnectBtn) disconnectBtn.disabled = true;
-            if (clientSelectionSection) clientSelectionSection.classList.remove('hidden');
-            
+            statusElement.textContent = '状态: 未连接';
+            statusElement.className = 'status status-disconnected';
+            connectBtn.disabled = false;
+            disconnectBtn.disabled = true;
+            clientSelectionSection.classList.remove('hidden');
             window.selectedClientId = null;
-            
-            const infoDiv = document.getElementById('info_div');
-            if (infoDiv) infoDiv.textContent = '与服务器断开连接，尝试重连中...';
-            
+            document.getElementById('info_div').textContent = '与服务器断开连接，尝试重连中...';
             if (currentClientStatus) currentClientStatus.textContent = '未连接到服务器';
-            
-            // 注释掉不存在的元素引用
-            /*
+            /* 注释掉不存在的元素引用
             document.getElementById('btnStart').disabled = true;
             document.getElementById('btnStop').disabled = true;
             */
@@ -1216,18 +887,13 @@ hello world 40</textarea>
             // 添加断开连接消息
             window.addMessage('系统', '与服务器的连接已断开', 'system');
             
-            // 自动重连
-            setTimeout(() => {
-                window.connectToServer(window.userId);
-            }, 5000);
+            window.connectToServer(window.userId);
         };
         
         window.socket.onerror = (error) => {
             console.error('WebSocket错误:', error);
             if (currentClientStatus) currentClientStatus.textContent = '连接错误，请检查网络';
-            
-            const infoDiv = document.getElementById('info_div');
-            if (infoDiv) infoDiv.textContent = '连接错误，请检查网络';
+            document.getElementById('info_div').textContent = '连接错误，请检查网络';
             
             // 添加错误消息
             window.addMessage('系统', '连接错误，请检查网络', 'system');
@@ -1238,7 +904,6 @@ hello world 40</textarea>
     function updateClientList(clients) {
         // 获取客户端列表容器
         const clientList = document.getElementById('client-list');
-        if (!clientList) return;
         
         // 清空现有列表
         clientList.innerHTML = '';
@@ -1251,9 +916,7 @@ hello world 40</textarea>
             clientList.appendChild(emptyItem);
             
             if (currentClientStatus) currentClientStatus.textContent = '没有可用的接收端';
-            
-            const infoDiv = document.getElementById('info_div');
-            if (infoDiv) infoDiv.textContent = '没有可用的接收端，请等待...';
+            document.getElementById('info_div').textContent = '没有可用的接收端，请等待...';
         } else {
             // 遍历添加客户端列表项
             clients.forEach(clientId => {
@@ -1299,9 +962,7 @@ hello world 40</textarea>
                 currentClientElement.textContent = clientId;
                 currentClientElement.style.color = 'var(--primary-color)';
             }
-            
-            const infoDiv = document.getElementById('info_div');
-            if (infoDiv) infoDiv.textContent = `正在连接到接收端...`;
+            document.getElementById('info_div').textContent = `正在连接到接收端...`;
             
             // 发送选择消息
             window.socket.send(JSON.stringify({ select_client: clientId }));
@@ -1309,10 +970,7 @@ hello world 40</textarea>
         } else {
             console.error('无法选择客户机：WebSocket未连接');
             if (currentClientStatus) currentClientStatus.textContent = '未连接到服务器，无法选择客户机';
-            
-            const infoDiv = document.getElementById('info_div');
-            if (infoDiv) infoDiv.textContent = '未连接到服务器，无法选择客户机';
-            
+            document.getElementById('info_div').textContent = '未连接到服务器，无法选择客户机';
             window.addMessage('系统', '未连接到服务器，无法选择客户机', 'system');
         }
     }
@@ -1320,26 +978,60 @@ hello world 40</textarea>
     // 添加消息到消息容器
     window.addMessage = function(sender, text, type) {
         const messageContainer = document.getElementById('message-container');
-        if (!messageContainer) return;
-        
-        // 创建现在的时间
-        const now = new Date();
-        const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+        if (!messageContainer) {
+            // 如果消息容器不存在，只记录到控制台
+            console.log(`${sender}: ${text} (${type})`);
+            return;
+        }
         
         const messageElement = document.createElement('div');
         messageElement.className = `message ${type}`;
-        
-        if (type === 'system') {
-            messageElement.innerHTML = `<div class="message-content">${text}</div><div class="message-time">${timeStr}</div>`;
-        } else {
-            messageElement.innerHTML = `<div class="message-sender"><strong>${sender}</strong></div><div class="message-content">${text}</div><div class="message-time">${timeStr}</div>`;
-        }
+        messageElement.innerHTML = `<strong>${sender}:</strong> ${text}`;
         
         messageContainer.appendChild(messageElement);
         messageContainer.scrollTop = messageContainer.scrollHeight;
         
-        console.log(`${timeStr} - ${sender}: ${text} (${type})`);
+        console.log(`${sender}: ${text} (${type})`);
     }
+
+    // 按住说话按钮事件处理
+    /*
+    const btnPressAndHold = document.getElementById('btnPressAndHold');
+    btnPressAndHold.addEventListener('mousedown', function() {
+        // 按下时连接并开始识别
+        start();
+        record();
+        this.classList.add('recording');
+        // 开始累积识别结果
+        if (window.startRecording) window.startRecording();
+    });
+
+    btnPressAndHold.addEventListener('mouseup', function() {
+        // 松开时停止识别
+        stop();
+        this.classList.remove('recording');
+        // 发送累积的识别结果
+        if (window.stopRecording) window.stopRecording();
+    });
+
+    // 处理触摸事件，适用于移动设备
+    btnPressAndHold.addEventListener('touchstart', function(e) {
+        e.preventDefault(); // 防止触发其他事件
+        start();
+        record();
+        this.classList.add('recording');
+        // 开始累积识别结果
+        if (window.startRecording) window.startRecording();
+    });
+
+    btnPressAndHold.addEventListener('touchend', function(e) {
+        e.preventDefault(); // 防止触发其他事件
+        stop();
+        this.classList.remove('recording');
+        // 发送累积的识别结果
+        if (window.stopRecording) window.stopRecording();
+    });
+    */
 </script>
 </body>
 </html>

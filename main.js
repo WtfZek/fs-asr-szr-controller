@@ -918,7 +918,7 @@ function handleWithTimestamp(tmptext,tmptime)
 const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
 
 async function is_speaking() {
-	const response = await fetch(`http://${window.parent.host}/is_speaking`, {
+	const response = await fetch(`http://${window.host}/is_speaking`, {
 		body: JSON.stringify({
 			sessionid: 0,
 		}),
@@ -944,7 +944,7 @@ async function waitSpeakingEnd() {
         // 等待数字人开始讲话，最长等待10秒
         for(let i = 0; i < maxWaitTime; i++) {
             try {
-                const response = await fetch(`http://${window.parent.host}/is_speaking`, {
+                const response = await fetch(`http://${window.host}/is_speaking`, {
                     body: JSON.stringify({
                         sessionid: 0,
                     }),
@@ -995,7 +995,7 @@ async function waitSpeakingEnd() {
         
         while(true) {
             try {
-                const response = await fetch(`http://${window.parent.host}/is_speaking`, {
+                const response = await fetch(`http://${window.host}/is_speaking`, {
                     body: JSON.stringify({
                         sessionid: 0,
                     }),
@@ -1067,7 +1067,7 @@ function getJsonMessage( jsonMsg ) {
 
 	if(asrmodel=="2pass-offline" || asrmodel=="offline")
 	{
-		offline_text=rectxt.replace(/ +/g,"")+'\n'; // 只保留基本文本处理
+		offline_text=offline_text+rectxt.replace(/ +/g,""); // 只保留基本文本处理
 		rec_text=offline_text;
 
         
@@ -1197,10 +1197,14 @@ function getConnState(connState) {
             }, 1000);
         }
     } else if (connState === 1) {
-		stop();
+        console.log('连接已关闭，正在停止识别');
+        if (info_div) {
+            info_div.innerHTML='<span style="color:#ff9f1c">⚠️ 连接已关闭，正在停止识别</span>';
+        }
+        stop();
     } else if (connState === 2) {
-		stop();
         console.log('connecttion error');
+		stop();
         
         if (info_div) {
             info_div.innerHTML='<span style="color:#f72585">❌ 连接失败，请点击连接按钮重试</span>';
@@ -1297,6 +1301,9 @@ window.stop = function() {
     // 停止音频监测
     stopAudioMonitoring();
 
+    console.log("full_result: " + window.full_result);
+
+
     if(isfilemode == false) {
         btnStop.disabled = true;
         btnStart.disabled = true;
@@ -1372,6 +1379,7 @@ function clear() {
     varArea.value = "";
     rec_text = "";
     offline_text = "";
+    window.full_result = "";
 }
 
 // 测试麦克风访问
@@ -1562,14 +1570,19 @@ function createNewChatItem(chatContent, message, isSender, isStreaming = false) 
     return chatItem;
 }
 
+window.full_result = "";
+
 // 处理ASR结果并发送
 function onASRResult(result) {
     // 发送识别结果到已选择的客户机
-    sendMessage(result);
+    window.full_result = window.full_result + result;
 }
 
 // 发送消息到选择的客户机
 function sendMessage(messageText) {
+    if(messageText === "" || messageText == null) {
+        return;
+    }
     // 使用外部定义的 socket 和 selectedClientId
     if (window.socket && window.socket.readyState === WebSocket.OPEN && window.selectedClientId) {
         window.socket.send(JSON.stringify({ message: messageText }));
@@ -1596,6 +1609,50 @@ function sendMessage(messageText) {
         }
     }
 }
+
+// 发送文本消息（带类型）
+window.sendTextMessage = function(text, type) {
+    if(text === "" || text == null) {
+        return;
+    }
+    // 使用外部定义的 socket 和 selectedClientId
+    if (window.socket && window.socket.readyState === WebSocket.OPEN && window.selectedClientId) {
+        // 根据服务端API，只需发送message字段
+        window.socket.send(JSON.stringify({ 
+            message: text
+        }));
+        console.log(`发送消息 (${type}):`, text);
+        
+        // 将发送的消息添加到消息列表，在UI中显示类型
+        if (typeof window.addMessage === 'function') {
+            window.addMessage('文本消息', `[${type}] ${text}`, 'sent');
+        }
+    } else {
+        console.error('无法发送消息：未连接到服务器或未选择客户机');
+        
+        // 显示错误消息
+        if (typeof window.addMessage === 'function') {
+            window.addMessage('错误', '无法发送消息：未连接到服务器或未选择接收端', 'system');
+        }
+    }
+};
+
+// 发送类型变更
+window.sendTypeChange = function(type) {
+    if (window.socket && window.socket.readyState === WebSocket.OPEN) {
+        const message = {
+            type: "type_change",
+            new_type: type
+        };
+        window.socket.send(JSON.stringify(message));
+        console.log('发送类型变更:', type);
+
+        // 将类型变更消息添加到消息列表
+        if (typeof window.addMessage === 'function') {
+            window.addMessage('系统', `已将消息类型设置为: ${type === 'echo' ? '复述' : '对话'}`, 'system');
+        }
+    }
+};
 
 // 页面初始化
 window.onload = function() {
@@ -1660,5 +1717,25 @@ window.onload = function() {
     
     console.log("ASR页面初始化完成");
 };
+
+/*
+与服务端通信协议说明：
+
+1. 消息发送:
+   - 普通消息: { message: "消息内容" }
+   - 类型变更消息: { type: "type_change", new_type: "echo|chat" }
+
+2. 服务端返回消息类型:
+   - client_list: 客户端列表
+   - client_selected: 客户端选择结果
+   - message_sent: 消息发送成功
+   - type_change_sent: 类型变更消息发送成功
+   - client_disconnected: 客户端断开连接
+   - error: 错误消息
+
+3. 服务端潜在问题:
+   - 在type_change处理逻辑中有一个变量引用错误(client_ws)，可能导致类型变更消息处理失败
+   - 建议修改服务端代码，移除多余的client_ws.send_json调用或正确获取client_ws
+*/
 
 
