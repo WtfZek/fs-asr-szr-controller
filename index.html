@@ -687,6 +687,9 @@
         <span>当前客户机状态: </span><span id="current-client-status">等待连接...</span>
     </div>
 
+    <!-- 状态提示 -->
+    <div id="info_div" style="margin: 15px 0; text-align: center; font-size: 14px; padding: 10px; border-radius: 20px; background-color: rgba(67, 97, 238, 0.05);">请选择接收端后开始语音识别</div>
+
     <!-- 文本输入和发送区域 -->
     <div class="container" style="margin-bottom: 15px; padding: 15px;">
         <div style="display: flex; flex-direction: column; gap: 10px;">
@@ -702,9 +705,6 @@
             </div>
         </div>
     </div>
-
-    <!-- 状态提示 -->
-    <div id="info_div" style="margin: 15px 0; text-align: center; font-size: 14px; padding: 10px; border-radius: 20px; background-color: rgba(67, 97, 238, 0.05);">请选择接收端后开始语音识别</div>
 
     <!-- 结果区域 -->
     <div class="container">
@@ -755,7 +755,7 @@
         </div> -->
         
         <!-- 音量阈值控制 - 改为开关 -->
-        <div id="volume-threshold-control" style="margin-top: 15px;">
+        <div id="volume-threshold-control" style="margin-top: 15px; display: none;">
             <div class="switch-container" style="justify-content: space-between;">
                 <label for="speaker-detection-toggle" style="margin: 0; font-size: 14px; color: var(--text-secondary);">扬声器检测 (自动暂停/恢复识别)</label>
                 <label class="switch">
@@ -786,9 +786,9 @@
     </div>
 
     <!-- 高级设置区域 -->
-    <div class="divider"></div>
+    <div class="divider" style="display: none;"></div>
 
-    <div id="advanced-settings" class="hidden">
+    <div id="advanced-settings" class="hidden" style="display: none;">
         <!-- ASR模型选择 -->
         <div id="mic_mode_div" class="control-section">
             <h4>选择ASR模型模式</h4>
@@ -850,7 +850,7 @@ hello world 40</textarea>
     </div>
 
     <!-- 显示/隐藏高级设置按钮 -->
-    <button id="toggle-advanced" style="width: 100%; background-color: var(--background-dark); color: var(--text-primary);">
+    <button id="toggle-advanced" style="display: none; width: 100%; background-color: var(--background-dark); color: var(--text-primary);">
         显示高级设置
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 8px; vertical-align: text-bottom;">
             <polyline points="6 9 12 15 18 9"></polyline>
@@ -931,31 +931,49 @@ hello world 40</textarea>
         if (btnPressAndHold) {
             btnPressAndHold.addEventListener('mousedown', function() {
                 // 按下时连接并开始识别
-                start();
-                record();
-                this.classList.add('recording');
+                let connResult = start();
+                if (connResult === 1) {
+                    setTimeout(function() {
+                        record();
+                    }, 500); // 给WebSocket连接一点时间建立
+                    this.classList.add('recording');
+                }
             });
 
             btnPressAndHold.addEventListener('mouseup', function() {
-                // 松开时停止识别
-                window.stop();
-                sendMessage(window.full_result);
-                this.classList.remove('recording');
+                // 松开时停止识别，并发送消息
+                if (this.classList.contains('recording')) {
+                    window.stopASR();
+                    // 只有当有识别结果时才发送
+                    if (window.full_result && window.full_result.trim() !== "") {
+                        sendTextMessage(window.full_result, window.chatType);
+                    }
+                    this.classList.remove('recording');
+                }
             });
 
             // 处理触摸事件，适用于移动设备
             btnPressAndHold.addEventListener('touchstart', function(e) {
                 e.preventDefault(); // 防止触发其他事件
-                start();
-                record();
-                this.classList.add('recording');
+                let connResult = start();
+                if (connResult === 1) {
+                    setTimeout(function() {
+                        record();
+                    }, 500); // 给WebSocket连接一点时间建立
+                    this.classList.add('recording');
+                }
             });
 
             btnPressAndHold.addEventListener('touchend', function(e) {
                 e.preventDefault(); // 防止触发其他事件
-                window.stop();
-                sendMessage(window.full_result);
-                this.classList.remove('recording');
+                if (this.classList.contains('recording')) {
+                    window.stopASR();
+                    // 只有当有识别结果时才发送
+                    if (window.full_result && window.full_result.trim() !== "") {
+                        sendTextMessage(window.full_result, window.chatType);
+                    }
+                    this.classList.remove('recording');
+                }
             });
         }
 
@@ -1062,7 +1080,9 @@ hello world 40</textarea>
             messageType.addEventListener('change', function() {
                 const type = messageType.value;
                 // 发送类型变更消息
-                window.sendTypeChange(type);
+                // window.sendTypeChange(type);
+                window.chatType = type;
+                console.log(`已切换到${type}模式`);
             });
         }
     });

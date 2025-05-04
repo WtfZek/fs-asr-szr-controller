@@ -39,6 +39,7 @@ var isAudioMonitoring = false;
 var micMuteDuration = 0; // 麦克风静音持续时间(毫秒)
 var recoveryCheckInterval = 100; // 恢复检查间隔(毫秒)
 
+window.chatType = 'chat'; // 默认聊天类型为对话
 
 addMicMuteDurationControl();
 
@@ -781,8 +782,8 @@ function start_file_send()
  
 		 
 		}
- 
-		stop();
+
+    stopASR();
 
  
 
@@ -1201,10 +1202,18 @@ function getConnState(connState) {
         if (info_div) {
             info_div.innerHTML='<span style="color:#ff9f1c">⚠️ 连接已关闭，正在停止识别</span>';
         }
-        stop();
+        
+        // 更新按钮状态而不调用stopASR
+        if (btnStart) btnStart.disabled = true;
+        if (btnStop) btnStop.disabled = true;
+        if (btnConnect) btnConnect.disabled = false;
+        
+        // 如果需要停止音频监测
+        if (typeof stopAudioMonitoring === 'function') {
+            stopAudioMonitoring();
+        }
     } else if (connState === 2) {
         console.log('connecttion error');
-		stop();
         
         if (info_div) {
             info_div.innerHTML='<span style="color:#f72585">❌ 连接失败，请点击连接按钮重试</span>';
@@ -1226,11 +1235,22 @@ function getConnState(connState) {
         if (btnConnect) btnConnect.disabled = false;
         
         // 停止音频监测
-        stopAudioMonitoring();
+        if (typeof stopAudioMonitoring === 'function') {
+            stopAudioMonitoring();
+        }
     }
 }
 
+// 重置识别结果
+window.resetRecognitionResult = function() {
+    window.full_result = "";
+    console.log("识别结果已重置");
+};
+
 function record() {
+    // 重置识别结果
+    window.resetRecognitionResult();
+    
     // 添加音量显示指示器到页面
     if (!document.getElementById('volume-indicator')) {
         var volumeIndicator = document.createElement('div');
@@ -1256,14 +1276,28 @@ function record() {
         info_div.parentNode.insertBefore(container, info_div.nextSibling);
     }
     
-    // 打开麦克风并启动录音 - 原始实现
+    // 如果已经在录音中，不要重复启动
+    if (rec.state) {
+        console.log("录音已经在进行中，不重复启动");
+        return;
+    }
+    
+    // 打开麦克风并启动录音 - 添加错误处理
     rec.open(function() {
         rec.start();
         console.log("开始录音");
-        btnStart.disabled = true;
-        btnStop.disabled = false;
-        btnConnect.disabled = true;
+        if (btnStart) btnStart.disabled = true;
+        if (btnStop) btnStop.disabled = false;
+        if (btnConnect) btnConnect.disabled = true;
         info_div.innerHTML = '<span style="color:#2ec4b6">✓ 录音已开始，请说话...</span>';
+    }, function(msg) {
+        console.error("无法打开麦克风:", msg);
+        info_div.innerHTML = '<span style="color:#f72585">❌ 无法打开麦克风: ' + msg + '</span>';
+        
+        // 如果麦克风打开失败，重置按钮状态
+        if (btnStart) btnStart.disabled = false;
+        if (btnStop) btnStop.disabled = true;
+        if (btnConnect) btnConnect.disabled = false;
     });
 }
 
@@ -1274,7 +1308,9 @@ window.startly = function() {
 };
 
 // 确保stop函数全局可访问
-window.stop = function() {
+window.stopASR = function() {
+    console.log("结束录音，识别结果：" + window.full_result);
+    
     var chunk_size = new Array(5, 10, 5);
     var request = {
         "chunk_size": chunk_size,
@@ -1313,26 +1349,31 @@ window.stop = function() {
         console.log("关闭WebSocket连接");
         wsconnecter.wsStop();
         
-        rec.stop(function(blob, duration) {
-            console.log("录音数据:", blob);
-            // 注释掉音频处理代码，避免资源消耗
-            /*
-            var audioBlob = Recorder.pcm2wav(
-                data = {sampleRate: 16000, bitRate: 16, blob: blob},
-                function(theblob, duration) {
-                    console.log("WAV音频:", theblob);
-                    var audio_record = document.getElementById('audio_record');
-                    audio_record.src = (window.URL || webkitURL).createObjectURL(theblob);
-                    audio_record.controls = true;
-                },
-                function(msg) {
-                    console.log("WAV转换错误:", msg);
-                }
-            );
-            */
-        }, function(errMsg) {
-            console.log("录音停止错误: " + errMsg);
-        });
+        // 检查录音是否已经开始，避免"未开始录音"错误
+        if(rec && rec.state) {
+            rec.stop(function(blob, duration) {
+                console.log("录音数据:", blob);
+                // 注释掉音频处理代码，避免资源消耗
+                /*
+                var audioBlob = Recorder.pcm2wav(
+                    data = {sampleRate: 16000, bitRate: 16, blob: blob},
+                    function(theblob, duration) {
+                        console.log("WAV音频:", theblob);
+                        var audio_record = document.getElementById('audio_record');
+                        audio_record.src = (window.URL || webkitURL).createObjectURL(theblob);
+                        audio_record.controls = true;
+                    },
+                    function(msg) {
+                        console.log("WAV转换错误:", msg);
+                    }
+                );
+                */
+            }, function(errMsg) {
+                console.log("录音停止错误: " + errMsg);
+            });
+        } else {
+            console.log("录音未开始，跳过停止录音操作");
+        }
     }
 };
 
@@ -1390,7 +1431,7 @@ function testMicrophoneAccess(callback) {
                 console.log("麦克风访问成功");
                 
                 // 关闭测试流
-                stream.getTracks().forEach(track => track.stop());
+                stream.getTracks().forEach(track => track.stopASR());
                 
                 callback(true);
             })
@@ -1615,13 +1656,15 @@ window.sendTextMessage = function(text, type) {
     if(text === "" || text == null) {
         return;
     }
+    const newType = type? type : window.chatType? window.chatType : 'echo';
     // 使用外部定义的 socket 和 selectedClientId
     if (window.socket && window.socket.readyState === WebSocket.OPEN && window.selectedClientId) {
         // 根据服务端API，只需发送message字段
-        window.socket.send(JSON.stringify({ 
-            message: text
+        window.socket.send(JSON.stringify({
+            message: text,
+            type: newType, // 默认使用全局类型或'echo'
         }));
-        console.log(`发送消息 (${type}):`, text);
+        console.log(`以${newType}发送消息 (${type}):`, text);
         
         // 将发送的消息添加到消息列表，在UI中显示类型
         if (typeof window.addMessage === 'function') {
@@ -1673,7 +1716,7 @@ window.onload = function() {
     // 添加事件监听器
     if (btnStart) btnStart.onclick = record;
     if (btnStop) {
-        btnStop.onclick = stop;
+        btnStop.onclick = stopASR;
         btnStop.disabled = true;
     }
     if (btnStart) btnStart.disabled = true;
