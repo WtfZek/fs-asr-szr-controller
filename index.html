@@ -22,6 +22,11 @@
             --transition: all 0.3s ease;
         }
 
+        /* 全局盒模型设置 */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             margin: 0;
@@ -450,10 +455,10 @@
             border: 1px solid rgba(46, 196, 182, 0.2);
         }
 
-        /* 自定义客户端滚动列表 */
+        /* 数字人网格样式 */
         .client-list-container {
             width: 100%;
-            max-height: 180px;
+            max-height: 400px;
             border: 1px solid var(--border-color);
             border-radius: 10px;
             background-color: white;
@@ -462,122 +467,118 @@
             margin-bottom: 15px;
         }
 
-        .client-list {
+        .digital-human-grid {
             width: 100%;
-            max-height: 180px;
+            max-height: 400px;
             overflow-y: auto;
-            padding: 0;
-            -webkit-overflow-scrolling: touch; /* 提升iOS滚动体验 */
-        }
-
-        .client-item {
-            padding: 12px 15px;
-            font-size: 15px;
-            border-bottom: 1px solid #f0f0f0;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            position: relative;
-            display: flex;
-            align-items: center;
-            -webkit-tap-highlight-color: rgba(46, 196, 182, 0.1); /* 优化移动端点击效果 */
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .client-item:active {
-            background-color: rgba(46, 196, 182, 0.15); /* 点击时的反馈效果 */
-        }
-
-        .client-item:last-child {
-            border-bottom: none;
-        }
-
-        .client-item:hover {
-            background-color: #f8f9fa;
-        }
-
-        .client-item.selected {
-            background-color: rgba(46, 196, 182, 0.1);
-            font-weight: 500;
-        }
-
-        .client-item.selected::after {
-            content: "✓";
-            position: absolute;
-            right: 15px;
-            color: var(--success-color);
-            font-weight: bold;
-        }
-
-        .client-item.empty-item {
-            color: #999;
-            cursor: default;
-            text-align: center;
-            justify-content: center;
-            padding: 20px 15px;
-        }
-
-        /* 消息容器样式 */
-        .message-container {
-            height: 150px;
-            overflow-y: auto;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
             padding: 10px;
-            background-color: white;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 改为固定3列布局 */
+            grid-gap: 12px; /* 减小间距 */
+            -webkit-overflow-scrolling: touch;
+            box-sizing: border-box; /* 确保内边距包含在宽度内 */
         }
 
-        .message {
-            padding: 8px 12px;
-            margin-bottom: 8px;
-            border-radius: 8px;
-            font-size: 14px;
-            line-height: 1.4;
-            word-break: break-word;
+        .digital-human-card {
             position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeIn 0.5s ease;
+            width: 100%;
+            margin: 0 auto;
         }
 
-        .message-sender {
-            font-weight: 500;
-            margin-bottom: 4px;
+        .digital-human-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
-        .message-content {
+        .digital-human-card.selected {
+            border: 3px solid var(--primary-color);
+            box-shadow: 0 0 15px rgba(67, 97, 238, 0.3);
+        }
+
+        .digital-human-image-container {
+            position: relative;
+            padding-top: 177.77%; /* 9:16比例 */
+            overflow: hidden;
+        }
+        
+        .digital-human-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .digital-human-card:hover .digital-human-image {
+            transform: scale(1.05);
+        }
+
+        .digital-human-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 8px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+            color: white;
+        }
+
+        .digital-human-name {
+            font-size: 14px;
+            font-weight: 600;
             margin-bottom: 2px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
         }
 
-        .message-time {
-            font-size: 11px;
-            color: #999;
-            text-align: right;
+        .digital-human-description {
+            font-size: 12px;
+            opacity: 0.85;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: opacity 0.3s ease;
         }
 
-        .sent {
-            background-color: #e3f2fd;
-            text-align: right;
-            margin-left: 15%;
-            border-bottom-right-radius: 2px;
+        .digital-human-card:hover .digital-human-description {
+            opacity: 1;
         }
 
-        .received {
-            background-color: #f5f5f5;
-            margin-right: 15%;
-            border-bottom-left-radius: 2px;
-        }
-
-        .system {
-            background-color: #fff9c4;
-            font-style: italic;
-            border-radius: 4px;
+        .loading-indicator {
+            grid-column: 1 / -1;
             text-align: center;
-            margin: 5px 10%;
-            font-size: 13px;
-            color: #6d4c41;
+            padding: 30px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -468px 0 }
+            100% { background-position: 468px 0 }
+        }
+
+        .digital-human-card-skeleton {
+            height: 200px;
+            border-radius: 8px;
+            background: #f6f7f8;
+            background: linear-gradient(to right, #f6f7f8 8%, #edeef1 18%, #f6f7f8 33%);
+            background-size: 800px 104px;
+            animation: shimmer 1.5s infinite linear;
+        }
+
+        @media (max-width: 480px) {
+            .digital-human-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
         /* 媒体查询优化手机端显示 */
@@ -635,7 +636,7 @@
     <!-- 用户连接区域 -->
     <div class="container" id="connection-section" style="padding: 15px;">
         <h4 style="text-align: center; margin-bottom: 15px; font-size: 18px; color: var(--primary-color);">数字人远程语音控制</h4>
-        <div class="status status-disconnected" style="text-align: center; font-size: 14px; margin-bottom: 15px;">状态: 未连接</div>
+        <div class="status status-disconnected" style="display: none; text-align: center; font-size: 14px; margin-bottom: 15px;">状态: 未连接</div>
         
         <div id="login-section" style="display: none;">
             <div class="input-group">
@@ -652,10 +653,11 @@
         <div id="client-selection-section">
             <h4 style="font-size: 15px; text-align: center; margin-bottom: 10px;">选择接收端</h4>
             
-            <!-- 自定义滚动列表替代select -->
+            <!-- 数字人形象网格滚动列表 -->
             <div class="client-list-container">
-                <div id="client-list" class="client-list">
-                    <div class="client-item empty-item">等待接收端连接...</div>
+                <div id="digital-human-grid" class="digital-human-grid">
+                    <!-- 数字人形象卡片将通过JS动态添加 -->
+                    <div class="loading-indicator">加载数字人列表中...</div>
                 </div>
             </div>
             
@@ -664,12 +666,13 @@
             </div>
             
             <div class="current-client-info" style="text-align: center; padding: 12px; border-radius: 20px; margin-top: 10px;">
-                <div style="font-weight: 600; font-size: 14px;">当前接收端: <span id="current-client" style="color: var(--primary-color); font-weight: bold;">无</span></div>
+                <div style="font-weight: 600; font-size: 14px;">当前选择: <span id="current-client-name" style="color: var(--primary-color); font-weight: bold;">无</span></div>
+                <div style="display: none; font-size: 12px; color: #666;" id="current-client-id-display">ID: <span id="current-client" style="font-family: monospace;">无</span></div>
             </div>
         </div>
     </div>
 
-    <div class="recoder_mode_div hidden">
+    <div class="recoder_mode_div hidden" style="display: none;">
         <div class="radio-group">
             <div class="radio-option">
                 <input name="recoder_mode" onclick="on_recoder_mode_change()" type="radio" value="mic" checked id="mic-radio">
@@ -681,17 +684,14 @@
             </div>
         </div>
     </div>
-
     <!-- 客户机状态显示 -->
     <div id="client-status-display" style="display: none; margin-bottom: 16px; padding: 8px; background-color: #f0f8ff; border-radius: 8px; border: 1px solid #d1e5f9;">
         <span>当前客户机状态: </span><span id="current-client-status">等待连接...</span>
     </div>
-
     <!-- 状态提示 -->
-    <div id="info_div" style="margin: 15px 0; text-align: center; font-size: 14px; padding: 10px; border-radius: 20px; background-color: rgba(67, 97, 238, 0.05);">请选择接收端后开始语音识别</div>
-
+    <div id="info_div" style="display: none; margin: 15px 0; text-align: center; font-size: 14px; padding: 10px; border-radius: 20px; background-color: rgba(67, 97, 238, 0.05);">请选择数字人</div>
     <!-- 文本输入和发送区域 -->
-    <div class="container" style="margin-bottom: 15px; padding: 15px;">
+    <div class="container"  style="display: none; margin-bottom: 15px; padding: 15px;">
         <div style="display: flex; flex-direction: column; gap: 10px;">
             <div style="display: flex; gap: 10px;">
                 <input type="text" id="text-input" placeholder="请输入要发送的文本..." style="flex: 1; padding: 12px; border: 1px solid var(--border-color); border-radius: 20px; font-size: 14px;">
@@ -705,9 +705,8 @@
             </div>
         </div>
     </div>
-
     <!-- 结果区域 -->
-    <div class="container">
+    <div class="container" style="display: none;">
 
         <div class="control-section" style="margin-bottom: 20px;">
             <div style="display: flex; flex-direction: column; gap: 15px;">
@@ -723,29 +722,20 @@
             </div>
         </div>
     </div>
-
     <!-- 按钮区域 -->
     <div class="button-group" style="display: none;">
         <button id="btnConnect" style="display: none;">连接</button>
         <button id="btnStart" style="display: none;">开始</button>
         <button id="btnStop" style="display: none;" disabled>停止</button>
     </div>
-    <div class="press-hold-container" style="margin: 20px 0;">
-        <button id="btnPressAndHold" class="press-hold-button">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                <line x1="12" y1="19" x2="12" y2="23"></line>
-                <line x1="8" y1="23" x2="16" y2="23"></line>
-            </svg>
-        </button>
+    <!-- 跳转按钮 -->
+    <div class="button-group" style="margin: 20px 0;">
+        <button id="start-conversation-btn" style="display: none; width: 100%; background-color: var(--primary-color); font-size: 16px; padding: 12px 0;" onclick="startConversation()">开始对话</button>
     </div>
-
     <!-- 音频播放器 -->
-    <audio id="audio_record" type="audio/wav" controls></audio>
-
+    <audio id="audio_record" type="audio/wav" style="display: none;" controls></audio>
     <!-- 音量相关控件 -->
-    <div class="volume-controls" style="margin-top: 15px;">
+    <div class="volume-controls" style="display: none; margin-top: 15px;">
         <!-- 播放音量指示器 -->
         <!-- <div style="margin-bottom: 10px;">
             <div style="font-size:12px;color:#666;margin-bottom:5px;">播放音量</div>
@@ -767,11 +757,6 @@
             <span id="threshold-value-display" style="display:none;">1</span>
             <input type="range" id="threshold-slider" min="1" max="100" step="99" value="1" style="display:none;">
         </div>
-        
-        <!-- 手动暂停/恢复按钮 -->
-        <!-- <div style="margin-top:15px;text-align:center;">
-            <button id="manual-pause-button" style="padding:8px 16px;background:#ff9f1c;color:white;border:none;border-radius:4px;cursor:pointer;">暂停识别</button>
-        </div> -->
 
         <!-- 清空历史记录选项 -->
         <div id="clear-history-control" style="margin-top: 15px; display: none;">
@@ -784,10 +769,8 @@
             </div>
         </div>
     </div>
-
     <!-- 高级设置区域 -->
     <div class="divider" style="display: none;"></div>
-
     <div id="advanced-settings" class="hidden" style="display: none;">
         <!-- ASR模型选择 -->
         <div id="mic_mode_div" class="control-section">
@@ -848,7 +831,6 @@
 hello world 40</textarea>
         </div>
     </div>
-
     <!-- 显示/隐藏高级设置按钮 -->
     <button id="toggle-advanced" style="display: none; width: 100%; background-color: var(--background-dark); color: var(--text-primary);">
         显示高级设置
@@ -897,7 +879,7 @@ hello world 40</textarea>
     let autoSelectLatestClient = true; // 自动选择最新客户机
     
     // DOM元素引用
-    const statusElement = document.querySelector('.status');
+    // const statusElement = document.querySelector('.status');
     const loginSection = document.getElementById('login-section');
     const clientSelectionSection = document.getElementById('client-selection-section');
     const currentClientElement = document.getElementById('current-client');
@@ -909,130 +891,20 @@ hello world 40</textarea>
 
     // 初始化按钮状态
     document.addEventListener('DOMContentLoaded', function() {
-        // 注释掉不存在的元素引用
-        /*
-        const btnStop = document.getElementById('btnStop');
-        btnStop.disabled = true;
-
-        // 针对按钮状态的事件监听
-        document.getElementById('btnStart').addEventListener('click', function() {
-            this.disabled = true;
-            btnStop.disabled = false;
-        });
-
-        document.getElementById('btnStop').addEventListener('click', function() {
-            this.disabled = true;
-            document.getElementById('btnStart').disabled = false;
-        });
-        */
-
-        // 按住说话按钮事件处理
-        const btnPressAndHold = document.getElementById('btnPressAndHold');
-        if (btnPressAndHold) {
-            btnPressAndHold.addEventListener('mousedown', function() {
-                // 按下时连接并开始识别
-                let connResult = start();
-                if (connResult === 1) {
-                    setTimeout(function() {
-                        record();
-                    }, 500); // 给WebSocket连接一点时间建立
-                    this.classList.add('recording');
-                }
-            });
-
-            btnPressAndHold.addEventListener('mouseup', function() {
-                // 松开时停止识别，并发送消息
-                if (this.classList.contains('recording')) {
-                    window.stopASR();
-                    // 只有当有识别结果时才发送
-                    if (window.full_result && window.full_result.trim() !== "") {
-                        sendTextMessage(window.full_result, window.chatType);
-                    }
-                    this.classList.remove('recording');
-                }
-            });
-
-            // 处理触摸事件，适用于移动设备
-            btnPressAndHold.addEventListener('touchstart', function(e) {
-                e.preventDefault(); // 防止触发其他事件
-                let connResult = start();
-                if (connResult === 1) {
-                    setTimeout(function() {
-                        record();
-                    }, 500); // 给WebSocket连接一点时间建立
-                    this.classList.add('recording');
-                }
-            });
-
-            btnPressAndHold.addEventListener('touchend', function(e) {
-                e.preventDefault(); // 防止触发其他事件
-                if (this.classList.contains('recording')) {
-                    window.stopASR();
-                    // 只有当有识别结果时才发送
-                    if (window.full_result && window.full_result.trim() !== "") {
-                        sendTextMessage(window.full_result, window.chatType);
-                    }
-                    this.classList.remove('recording');
-                }
-            });
-        }
-
-        // 处理清空历史记录选项
-        const clearHistoryToggle = document.getElementById('clear-history-toggle');
-        if (clearHistoryToggle) {
-            // 从localStorage加载保存的设置
-            try {
-                const savedSetting = localStorage.getItem('shouldClearHistoryOnLoad');
-                if (savedSetting !== null) {
-                    const shouldClear = savedSetting === 'true';
-                    clearHistoryToggle.checked = shouldClear;
-                    window.shouldClearHistoryOnLoad = shouldClear;
-                }
-            } catch (e) {
-                console.error('加载清空历史设置失败:', e);
-            }
-
-            // 监听变化
-            clearHistoryToggle.addEventListener('change', function() {
-                const shouldClear = this.checked;
-                // 调用全局函数设置
-                if (window.setClearHistoryOnLoad) {
-                    window.setClearHistoryOnLoad(shouldClear);
-                } else {
-                    window.shouldClearHistoryOnLoad = shouldClear;
-                    try {
-                        localStorage.setItem('shouldClearHistoryOnLoad', shouldClear);
-                    } catch (e) {
-                        console.error('保存清空历史设置失败:', e);
-                    }
-                }
-
-                console.log(`已设置页面加载时${shouldClear ? '清空' : '保留'}历史对话消息`);
-            });
-        }
-
-        // 连接按钮点击事件
-        if (connectBtn) {
-            connectBtn.addEventListener('click', () => {
-                const userIdInput = document.getElementById('user-id');
-                if (userIdInput) {
-                    window.userId = userIdInput.value.trim();
-                    if (!window.userId) {
-                        alert('请输入用户ID');
-                        return;
-                    }
-                }
-                
-                window.connectToServer(window.userId);
-            });
-        }
+        // 从后端获取数字人列表
+        fetchDigitalHumans();
         
-        // 刷新客户机列表按钮点击事件
+        // 初始连接到服务器
+        window.connectToServer('远程语音');
+        
+        // 刷新按钮点击事件
         if (refreshBtn) {
             refreshBtn.addEventListener('click', () => {
                 if (window.socket && window.socket.readyState === WebSocket.OPEN) {
                     window.socket.send(JSON.stringify({ refresh_clients: true }));
-                    window.addMessage('系统', '正在刷新接收端列表...', 'system');
+                    window.addMessage('系统', '正在刷新数字人列表...', 'system');
+                    // 同时刷新数字人列表数据
+                    fetchDigitalHumans();
                 } else {
                     alert('未连接到服务器');
                     window.addMessage('系统', '未连接到服务器，无法刷新列表', 'system');
@@ -1049,8 +921,6 @@ hello world 40</textarea>
             });
         }
         
-        window.connectToServer(window.userId);
-
         // 添加文本发送按钮事件处理
         const sendTextBtn = document.getElementById('send-text-btn');
         const textInput = document.getElementById('text-input');
@@ -1087,6 +957,105 @@ hello world 40</textarea>
         }
     });
 
+    // 从后端获取数字人列表
+    function fetchDigitalHumans() {
+        // 确保使用正确的协议
+        const protocol = window.location.protocol === 'https:' ? 'https' : 'http';
+        
+        fetch(`${protocol}://${window.host}/clients`,{
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('获取数字人列表失败: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('获取到数字人列表:', data);
+                // 使用后端数据覆盖本地数字人列表
+                window.digitalHumans = data;
+                // 重新渲染数字人网格
+                renderDigitalHumans();
+            })
+            .catch(error => {
+                console.error('获取数字人列表出错:', error);
+                // 加载失败时使用本地默认数据
+                renderDigitalHumans();
+            });
+    }
+
+    // 数字人预设数据（备用）
+    window.digitalHumans = window.digitalHumans || [
+        {
+            id: "9291bb67-d6a8-466d-b9c2-1a5d7a2d6e3b",
+            name: "智能助手小美",
+            imageUrl: "./static/images/xiaomei.png",
+            prompt: "你是一位亲切友好的AI助手，擅长回答各类问题，风格温和有礼。"
+        },
+        {
+            id: "8ea1fc23-64c2-40bf-a76b-1cdd07b00add",
+            name: "金融顾问李教授",
+            imageUrl: "./static/images/xiaomei.png",
+            prompt: "你是一位资深金融分析师，精通投资理财，能提供专业的金融建议。"
+        },
+        {
+            id: "714fb18b-66e5-4a98-b8b8-93d54f57ad09",
+            name: "旅游向导小王",
+            imageUrl: "./static/images/xiaomei.png",
+            prompt: "你是一位热情的旅游向导，熟悉世界各地的景点和文化，能为游客提供旅行建议。"
+        },
+        {
+            id: "9562185f-6087-867b-dc99-f1g82bdcc58f",
+            name: "厨艺大师陈师傅",
+            imageUrl: "./static/images/xiaomei.png",
+            prompt: "你是一位拥有三十年经验的中餐大厨，擅长各种菜系，能详细讲解烹饪技巧。"
+        },
+        {
+            id: "1062185f-5087-967b-ec99-g1h82bdcc59f",
+            name: "心理咨询师张医生",
+            imageUrl: "./static/images/xiaomei.png",
+            prompt: "你是一位专业的心理咨询师，擅长倾听和共情，能帮助人们解决心理困扰。"
+        },
+        {
+            id: "1162185f-4087-167b-fc99-h1i82bdcc60f",
+            name: "科技专家吴博士",
+            imageUrl: "./static/images/xiaomei.png",
+            prompt: "你是一位AI和计算机科学专家，了解最新科技动态，能解释复杂技术概念。"
+        },
+        {
+            id: "1262185f-3087-267b-gc99-i1j82bdcc61f",
+            name: "健身教练小林",
+            imageUrl: "./static/images/xiaomei.png",
+            prompt: "你是一位专业健身教练，熟悉各种运动和健康知识，能提供个性化健身计划。"
+        },
+        {
+            id: "1362185f-2087-367b-hc99-j1k82bdcc62f",
+            name: "音乐老师周老师",
+            imageUrl: "./static/images/xiaomei.png",
+            prompt: "你是一位有二十年教学经验的音乐老师，精通钢琴和声乐，能讲解音乐理论。"
+        },
+        {
+            id: "1462185f-1087-467b-ic99-k1l82bdcc63f",
+            name: "文学教授赵教授",
+            imageUrl: "./static/images/xiaomei.png",
+            prompt: "你是一位古典文学教授，熟悉中外文学作品，能进行深入的文学分析。"
+        },
+        {
+            id: "1562185f-0087-567b-jc99-l1m82bdcc64f",
+            name: "儿童教育专家黄老师",
+            imageUrl: "./static/images/xiaomei.png",
+            prompt: "你是一位儿童教育专家，了解儿童心理和发展规律，能提供育儿和教育建议。"
+        }
+    ];
+
+    // 全局变量，用于存储当前选择的数字人信息
+    window.selectedDigitalHuman = null;
+    window.selectedClientId = null;
+
     // 连接到服务器
     window.connectToServer = function(userId) {
         // const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -1102,24 +1071,25 @@ hello world 40</textarea>
         
         window.socket.onopen = () => {
             console.log('已连接到服务器');
-            if (statusElement) {
-                statusElement.textContent = '状态: 已连接';
-                statusElement.className = 'status status-connected';
-            }
+            // if (statusElement) {
+            //     statusElement.textContent = '状态: 已连接';
+            //     statusElement.className = 'status status-connected';
+            // }
             if (connectBtn) connectBtn.disabled = true;
             if (disconnectBtn) disconnectBtn.disabled = false;
             if (clientSelectionSection) clientSelectionSection.classList.remove('hidden');
             
-            const infoDiv = document.getElementById('info_div');
-            if (infoDiv) infoDiv.textContent = '已连接服务器，等待接收端连接';
+            // const infoDiv = document.getElementById('info_div');
+            // if (infoDiv) infoDiv.textContent = '已连接服务器，等待接收端连接';
             
             if (currentClientStatus) currentClientStatus.textContent = '已连接服务器，等待接收端';
             
             // 添加连接成功消息
             window.addMessage('系统', '已连接到服务器', 'system');
             
-            // 连接后立即刷新客户机列表
+            // 连接后立即刷新客户机列表并加载预设数字人
             window.socket.send(JSON.stringify({ refresh_clients: true }));
+            renderDigitalHumans();
         };
         
         window.socket.onmessage = (event) => {
@@ -1127,47 +1097,66 @@ hello world 40</textarea>
             console.log('收到WebSocket消息:', data);
             
             if (data.type === 'client_list') {
+                // 在更新客户机列表前尝试获取最新的数字人数据
+                setTimeout(() => {
                 updateClientList(data.clients);
-                
                 // 显示客户端列表消息
                 if (data.clients && data.clients.length > 0) {
-                    window.addMessage('系统', `发现${data.clients.length}个接收端: ${data.clients.join(', ')}`, 'system');
+                        window.addMessage('系统', `发现${data.clients.length}个接收端，请选择一个数字人`, 'system');
                 } else {
-                    window.addMessage('系统', '没有找到可用的接收端', 'system');
+                        window.addMessage('系统', '没有找到可用的数字人接收端', 'system');
                 }
+                }, 300); // 给fetchDigitalHumans一点时间完成
                 
-                // 自动选择最新的客户机（如果存在且启用了自动选择）
+                fetchDigitalHumans();
+                // 不再自动选择最新的客户机，让用户手动选择数字人形象
+                /*
                 if (autoSelectLatestClient && data.clients && data.clients.length > 0) {
                     const latestClient = data.clients[data.clients.length - 1];
                     if (latestClient !== window.selectedClientId) {
                         selectClient(latestClient);
                     }
                 }
+                */
             } else if (data.type === 'client_selected') {
                 if (data.success) {
                     window.selectedClientId = data.client_id;
-                    if (currentClientElement) currentClientElement.textContent = window.selectedClientId;
-                    console.log(`已选择接收端: ${window.selectedClientId}`);
                     
-                    const infoDiv = document.getElementById('info_div');
-                    if (infoDiv) infoDiv.textContent = `已连接接收端，按住麦克风开始说话`;
-                    
-                    if (currentClientStatus) currentClientStatus.textContent = `已连接到接收端: ${window.selectedClientId}`;
-                    
-                    // 注释掉不存在的元素引用
-                    // document.getElementById('btnStart').disabled = false;
+                    // 找到对应的数字人
+                    const selectedHuman = window.digitalHumans.find(human => human.id === data.client_id);
+                    if (selectedHuman) {
+                        // 存储选中的数字人信息到全局变量
+                        window.selectedDigitalHuman = selectedHuman;
+                        
+                        // 更新UI显示
+                        const currentClientName = document.getElementById('current-client-name');
+                        if (currentClientName) {
+                            currentClientName.textContent = selectedHuman.name;
+                        }
+                        document.getElementById('current-client').textContent = data.client_id;
+                        document.getElementById('current-client-id-display').style.display = 'block';
+                        
+                        // 显示跳转按钮
+                        document.getElementById('start-conversation-btn').style.display = 'block';
+                        document.getElementById('info_div').style.display = 'block';
+                        document.getElementById('info_div').innerHTML = `<span style="color:#2ec4b6">✓ 已选择 ${selectedHuman.name}，点击"开始对话"按钮进入交互界面</span>`;
+                        
+                        console.log(`已选择数字人: ${selectedHuman.name} (ID: ${data.client_id})`);
+                        if (currentClientStatus) currentClientStatus.textContent = `已连接到数字人: ${selectedHuman.name}`;
                     
                     // 添加选择成功消息
-                    window.addMessage('系统', `已选择接收端: ${window.selectedClientId}`, 'system');
+                        window.addMessage('系统', `已选择数字人: ${selectedHuman.name}`, 'system');
                 } else {
-                    console.error('选择接收端失败');
-                    if (currentClientStatus) currentClientStatus.textContent = '选择接收端失败';
-                    
-                    const infoDiv = document.getElementById('info_div');
-                    if (infoDiv) infoDiv.textContent = '选择接收端失败，请重试';
+                        // 如果找不到对应的预设数字人
+                        if (currentClientStatus) currentClientStatus.textContent = `已连接到接收端: ${data.client_id}`;
+                        window.addMessage('系统', `已连接到接收端: ${data.client_id}`, 'system');
+                    }
+                } else {
+                    console.error('选择数字人失败');
+                    if (currentClientStatus) currentClientStatus.textContent = '选择数字人失败';
                     
                     // 添加选择失败消息
-                    window.addMessage('系统', '选择接收端失败', 'system');
+                    window.addMessage('系统', '选择数字人失败', 'system');
                 }
             } else if (data.type === 'message_sent') {
                 console.log(`消息已发送到接收端: ${data.client_id}`);
@@ -1183,27 +1172,36 @@ hello world 40</textarea>
                 
                 if (window.selectedClientId === data.client_id) {
                     window.selectedClientId = null;
-                    if (currentClientElement) currentClientElement.textContent = '无';
+                    window.selectedDigitalHuman = null;
                     
-                    const infoDiv = document.getElementById('info_div');
-                    if (infoDiv) infoDiv.textContent = '接收端已断开连接，请重新选择';
+                    // 重置UI
+                    const currentClientName = document.getElementById('current-client-name');
+                    if (currentClientName) {
+                        currentClientName.textContent = '无';
+                    }
+                    document.getElementById('current-client').textContent = '无';
+                    document.getElementById('current-client-id-display').style.display = 'none';
                     
-                    if (currentClientStatus) currentClientStatus.textContent = '接收端已断开，等待新连接';
+                    // 隐藏跳转按钮
+                    document.getElementById('start-conversation-btn').style.display = 'none';
+                    document.getElementById('info_div').style.display = 'none';
                     
-                    // 注释掉不存在的元素引用
-                    /*
-                    document.getElementById('btnStart').disabled = true;
-                    document.getElementById('btnStop').disabled = true;
-                    */
+                    if (currentClientStatus) currentClientStatus.textContent = '数字人已断开，等待新连接';
+                    
+                    // 移除选中样式
+                    const cards = document.querySelectorAll('.digital-human-card');
+                    cards.forEach(card => {
+                        card.classList.remove('selected');
+                    });
                 }
                 // 刷新客户机列表
                 window.socket.send(JSON.stringify({ refresh_clients: true }));
             } else if (data.type === 'error') {
                 console.error(`WebSocket错误: ${data.message}`);
                 if (currentClientStatus) currentClientStatus.textContent = `错误: ${data.message}`;
-                
-                const infoDiv = document.getElementById('info_div');
-                if (infoDiv) infoDiv.textContent = `错误: ${data.message}`;
+                //
+                // const infoDiv = document.getElementById('info_div');
+                // if (infoDiv) infoDiv.textContent = `错误: ${data.message}`;
                 
                 // 添加错误消息
                 window.addMessage('错误', data.message, 'system');
@@ -1212,18 +1210,18 @@ hello world 40</textarea>
         
         window.socket.onclose = () => {
             console.log('与服务器的连接已关闭');
-            if (statusElement) {
-                statusElement.textContent = '状态: 未连接';
-                statusElement.className = 'status status-disconnected';
-            }
+            // if (statusElement) {
+            //     statusElement.textContent = '状态: 未连接';
+            //     statusElement.className = 'status status-disconnected';
+            // }
             if (connectBtn) connectBtn.disabled = false;
             if (disconnectBtn) disconnectBtn.disabled = true;
             if (clientSelectionSection) clientSelectionSection.classList.remove('hidden');
             
             window.selectedClientId = null;
             
-            const infoDiv = document.getElementById('info_div');
-            if (infoDiv) infoDiv.textContent = '与服务器断开连接，尝试重连中...';
+            // const infoDiv = document.getElementById('info_div');
+            // if (infoDiv) infoDiv.textContent = '与服务器断开连接，尝试重连中...';
             
             if (currentClientStatus) currentClientStatus.textContent = '未连接到服务器';
             
@@ -1245,9 +1243,9 @@ hello world 40</textarea>
         window.socket.onerror = (error) => {
             console.error('WebSocket错误:', error);
             if (currentClientStatus) currentClientStatus.textContent = '连接错误，请检查网络';
-            
-            const infoDiv = document.getElementById('info_div');
-            if (infoDiv) infoDiv.textContent = '连接错误，请检查网络';
+            //
+            // const infoDiv = document.getElementById('info_div');
+            // if (infoDiv) infoDiv.textContent = '连接错误，请检查网络';
             
             // 添加错误消息
             window.addMessage('系统', '连接错误，请检查网络', 'system');
@@ -1256,109 +1254,178 @@ hello world 40</textarea>
     
     // 更新客户机列表
     function updateClientList(clients) {
-        // 获取客户端列表容器
-        const clientList = document.getElementById('client-list');
-        if (!clientList) return;
+        // 找出预设中与服务器返回的ID匹配的数字人
+        const availableHumans = window.digitalHumans.filter(human => clients.includes(human.id));
         
-        // 清空现有列表
-        clientList.innerHTML = '';
-        
-        if (!clients || clients.length === 0) {
-            // 添加空状态提示
-            const emptyItem = document.createElement('div');
-            emptyItem.className = 'client-item empty-item';
-            emptyItem.textContent = '没有可用的接收端';
-            clientList.appendChild(emptyItem);
-            
-            if (currentClientStatus) currentClientStatus.textContent = '没有可用的接收端';
-            
-            const infoDiv = document.getElementById('info_div');
-            if (infoDiv) infoDiv.textContent = '没有可用的接收端，请等待...';
-        } else {
-            // 遍历添加客户端列表项
-            clients.forEach(clientId => {
-                const clientItem = document.createElement('div');
-                clientItem.className = 'client-item';
-                clientItem.textContent = clientId;
-                clientItem.dataset.clientId = clientId;
-                
-                // 如果是当前选中的客户端，添加选中样式
-                if (clientId === window.selectedClientId) {
-                    clientItem.classList.add('selected');
-                }
-                
-                // 添加点击事件，直接选择客户端
-                clientItem.addEventListener('click', function() {
-                    selectClient(clientId);
-                });
-                
-                clientList.appendChild(clientItem);
-            });
-            
-            console.log(`已更新接收端列表，共 ${clients.length} 个接收端`);
-        }
-    }
-    
-    // 选择客户机
-    function selectClient(clientId) {
-        if (window.socket && window.socket.readyState === WebSocket.OPEN) {
-            console.log(`尝试选择客户机: ${clientId}`);
-            
-            // 更新UI显示选中状态
-            const clientItems = document.querySelectorAll('.client-item');
-            clientItems.forEach(item => {
-                if (item.dataset.clientId === clientId) {
-                    item.classList.add('selected');
-                } else {
-                    item.classList.remove('selected');
-                }
-            });
-            
-            // 立即更新客户端状态，提供即时反馈
-            if (currentClientElement) {
-                currentClientElement.textContent = clientId;
-                currentClientElement.style.color = 'var(--primary-color)';
+        // 如果没有匹配的预设数字人，显示空状态
+        if (availableHumans.length === 0) {
+            const digitalHumanGrid = document.getElementById('digital-human-grid');
+            if (digitalHumanGrid) {
+                digitalHumanGrid.innerHTML = '<div class="loading-indicator">没有可用的数字人接收端</div>';
             }
             
-            const infoDiv = document.getElementById('info_div');
-            if (infoDiv) infoDiv.textContent = `正在连接到接收端...`;
+            if (currentClientStatus) {
+                currentClientStatus.textContent = '没有可用的数字人接收端';
+            }
             
-            // 发送选择消息
-            window.socket.send(JSON.stringify({ select_client: clientId }));
-            window.addMessage('系统', `正在尝试连接到接收端: ${clientId}`, 'system');
-        } else {
-            console.error('无法选择客户机：WebSocket未连接');
-            if (currentClientStatus) currentClientStatus.textContent = '未连接到服务器，无法选择客户机';
+            window.addMessage('系统', '没有找到可用的数字人接收端', 'system');
             
-            const infoDiv = document.getElementById('info_div');
-            if (infoDiv) infoDiv.textContent = '未连接到服务器，无法选择客户机';
-            
-            window.addMessage('系统', '未连接到服务器，无法选择客户机', 'system');
+            // 没有可用的数字人时，刷新数字人列表数据
+            fetchDigitalHumans();
+            return;
+        }
+        
+        // 渲染可用的数字人
+        const digitalHumanGrid = document.getElementById('digital-human-grid');
+        if (!digitalHumanGrid) return;
+        
+        // 清空网格
+        digitalHumanGrid.innerHTML = '';
+        
+        // 为每个可用的数字人创建卡片
+        availableHumans.forEach(human => {
+            const card = createDigitalHumanCard(human);
+            digitalHumanGrid.appendChild(card);
+        });
+        
+        // 自动选择第一个数字人
+        if (autoSelectLatestClient && availableHumans.length > 0 && !window.selectedClientId) {
+            selectDigitalHuman(availableHumans[0]);
         }
     }
     
-    // 添加消息到消息容器
-    window.addMessage = function(sender, text, type) {
-        const messageContainer = document.getElementById('message-container');
-        if (!messageContainer) return;
+    // 选择数字人
+    function selectDigitalHuman(human) {
+        if (window.socket && window.socket.readyState === WebSocket.OPEN) {
+            console.log(`选择数字人: ${human.name} (ID: ${human.id})`);
+            
+            // 更新UI显示选中状态
+            const cards = document.querySelectorAll('.digital-human-card');
+            cards.forEach(card => {
+                if (card.dataset.id === human.id) {
+                    card.classList.add('selected');
+                } else {
+                    card.classList.remove('selected');
+                }
+            });
+            
+            // 存储选中的数字人信息到全局变量
+            window.selectedDigitalHuman = human;
+            
+            // 更新当前选择的数字人信息
+            const currentClientName = document.getElementById('current-client-name');
+            if (currentClientName) {
+                currentClientName.textContent = human.name;
+            }
+            
+            // 显示ID（可选）
+            document.getElementById('current-client').textContent = human.id;
+            document.getElementById('current-client-id-display').style.display = 'block';
+            
+            // 发送选择消息到服务器
+            window.socket.send(JSON.stringify({ select_client: human.id }));
+            window.addMessage('系统', `已选择数字人: ${human.name}`, 'system');
+            
+            // 显示跳转按钮
+            document.getElementById('start-conversation-btn').style.display = 'block';
+            document.getElementById('info_div').style.display = 'block';
+            document.getElementById('info_div').innerHTML = `<span style="color:#2ec4b6">✓ 已选择 ${human.name}，点击"开始对话"按钮进入交互界面</span>`;
+        } else {
+            console.error('无法选择数字人：WebSocket未连接');
+            window.addMessage('系统', '未连接到服务器，无法选择数字人', 'system');
+        }
+    }
+    
+    // 渲染数字人网格
+    function renderDigitalHumans() {
+        const digitalHumanGrid = document.getElementById('digital-human-grid');
+        if (!digitalHumanGrid) return;
         
+        // 清空网格
+        digitalHumanGrid.innerHTML = '';
+        
+        if (window.digitalHumans.length === 0) {
+            digitalHumanGrid.innerHTML = '<div class="loading-indicator">没有可用的数字人</div>';
+            return;
+        }
+        
+        // 为每个数字人创建卡片
+        window.digitalHumans.forEach(human => {
+            const card = createDigitalHumanCard(human);
+            digitalHumanGrid.appendChild(card);
+        });
+    }
+    
+    // 创建数字人卡片
+    function createDigitalHumanCard(human) {
+        const card = document.createElement('div');
+        card.className = 'digital-human-card';
+        card.dataset.id = human.id;
+        
+        // 如果是当前选中的数字人，添加选中样式
+        if (human.id === window.selectedClientId) {
+            card.classList.add('selected');
+        }
+        
+        const imageContainer = document.createElement('div');
+        imageContainer.className = 'digital-human-image-container';
+        
+        const image = document.createElement('img');
+        image.className = 'digital-human-image';
+        image.src = human.imageUrl;
+        image.alt = human.name;
+        image.loading = 'lazy'; // 延迟加载图片
+        
+        const info = document.createElement('div');
+        info.className = 'digital-human-info';
+        
+        const name = document.createElement('div');
+        name.className = 'digital-human-name';
+        name.textContent = human.name;
+        
+        const description = document.createElement('div');
+        description.className = 'digital-human-description';
+        description.textContent = human.prompt;
+        
+        info.appendChild(name);
+        info.appendChild(description);
+        
+        imageContainer.appendChild(image);
+        
+        card.appendChild(imageContainer);
+        card.appendChild(info);
+        
+        // 添加点击事件处理
+        card.addEventListener('click', function() {
+            selectDigitalHuman(human);
+        });
+        
+        return card;
+    }
+
+    // 添加消息到消息容器（简化版，只记录日志）
+    window.addMessage = function(sender, text, type) {
         // 创建现在的时间
         const now = new Date();
         const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
         
-        const messageElement = document.createElement('div');
-        messageElement.className = `message ${type}`;
-        
-        if (type === 'system') {
-            messageElement.innerHTML = `<div class="message-content">${text}</div><div class="message-time">${timeStr}</div>`;
-        } else {
-            messageElement.innerHTML = `<div class="message-sender"><strong>${sender}</strong></div><div class="message-content">${text}</div><div class="message-time">${timeStr}</div>`;
+        // 只输出到控制台
+        console.log(`${timeStr} - ${sender}: ${text} (${type})`);
+    }
+
+    // 跳转到对话界面
+    function startConversation() {
+        if (!window.selectedDigitalHuman) {
+            alert('请先选择一个数字人');
+            return;
         }
         
-        messageContainer.appendChild(messageElement);
-        messageContainer.scrollTop = messageContainer.scrollHeight;
+        // 将选中的数字人信息存储到sessionStorage
+        sessionStorage.setItem('selectedDigitalHuman', JSON.stringify(window.selectedDigitalHuman));
+        sessionStorage.setItem('selectedClientId', window.selectedClientId);
         
-        console.log(`${timeStr} - ${sender}: ${text} (${type})`);
+        // 跳转到对话界面
+        window.location.href = 'oc-panel.html';
     }
 </script>
 </body>
