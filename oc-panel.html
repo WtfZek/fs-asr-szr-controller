@@ -1,9 +1,13 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>语音识别</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#4361ee">
+    <title>数字人语音交互</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="ws-bridge.js"></script>
     <style>
         :root {
@@ -66,22 +70,23 @@
         }
 
         /* 结果显示区域样式 */
-        #varArea {
+        #varArea, #text-input-area {
             width: 95%;
-            /*height: 130px;*/
             padding: 12px;
             margin-bottom: 16px;
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            /*resize: none;*/
             font-family: inherit;
             font-size: 16px;
             background-color: var(--background-light);
             transition: var(--transition);
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            box-sizing: border-box;
+            height: 60px;
+            resize: none;
         }
 
-        #varArea:focus {
+        #varArea:focus, #text-input-area:focus {
             outline: none;
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
@@ -622,6 +627,45 @@
                 font-size: 14px;
             }
         }
+
+        /* 消息类型按钮样式 */
+        .message-type-btn {
+            padding: 6px 3px;
+            background-color: var(--background-light);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: var(--transition);
+            min-width: 45px;
+        }
+
+        .message-type-btn:hover {
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .message-type-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        /* 文本输入区域容器 */
+        .text-input-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .text-input-buttons {
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
     </style>
 </head>
 <body>
@@ -633,13 +677,62 @@
     </a>
 
     <!-- 用户连接区域 - 删除选择客户机部分，只保留状态显示 -->
-    <div class="container" id="connection-section" style="padding: 15px;">
-        <h4 style="text-align: center; margin-bottom: 15px; font-size: 18px; color: var(--primary-color);">数字人远程语音控制</h4>
-        <div class="status status-disconnected" style="text-align: center; font-size: 14px; margin-bottom: 15px;">状态: 未连接</div>
-
+    <div class="container" id="connection-section" style="padding: 15px; width: 100%; max-width: 100%; box-sizing: border-box;">
+        <h4 style="text-align: center; margin-bottom: 15px; font-size: 18px; color: var(--primary-color);">
+            数字人远程语音控制
+            <span id="connection-indicator" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: var(--secondary-color); margin-left: 5px; vertical-align: middle;"></span>
+        </h4>
+        
         <!-- 客户机状态显示 -->
         <div class="current-client-info" style="text-align: center; padding: 12px; border-radius: 20px; margin-top: 10px;">
-            <div style="font-weight: 600; font-size: 14px;">当前数字人: <span id="current-client" style="color: var(--primary-color); font-weight: bold;">无</span></div>
+            <div style="font-weight: 600; font-size: 14px;">数字人: <span id="current-client" style="color: var(--primary-color); font-weight: bold;">无</span></div>
+        </div>
+        
+        <!-- 文本输入和发送区域 -->
+        <div style="margin-top: 15px; margin-bottom: 15px;">
+            <!-- 文本输入区域容器 -->
+            <div class="text-input-container" style="position: relative;">
+                <textarea id="text-input" placeholder="请输入要发送的文本..." style="width: 100%; height: 120px; padding: 12px; padding-right: 140px; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); resize: none; box-sizing: border-box; font-size: 14px;"></textarea>
+                <div style="position: absolute; right: 10px; bottom: 10px; display: flex; gap: 5px; align-items: center;">
+                    <!-- 消息类型切换按钮 -->
+                    <div style="display: flex; border-radius: 20px; overflow: hidden; border: 1px solid var(--border-color); height: 26px;">
+                        <button id="echo-btn" class="message-type-btn active" style="margin: 0; padding: 3px 7px; border-radius: 20px 0 0 20px; border: none; font-size: 12px;">复述</button>
+                        <button id="chat-btn" class="message-type-btn" style="margin: 0; padding: 3px 7px; border-radius: 0 20px 20px 0; border: none; font-size: 12px;">对话</button>
+                    </div>
+                    <button id="send-text-btn" style="padding: 6px 5px; background-color: var(--primary-color); color: white; border: none; border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: 500; min-width: 55px;">发送</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+        
+        <!-- 结果区域 -->
+        <div style="margin-bottom: 15px;">
+            <div class="control-section" style="margin-bottom: 15px;">
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div>
+                        <h4 style="text-align: center; margin-bottom: 10px; font-size: 15px; opacity: 0.2;">语音识别结果</h4>
+                        <textarea id="varArea" readonly placeholder="" style="width: 100%; height: 60px; padding: 12px; background-color: #f9f9f9; color: rgba(0,0,0,0.5); border: none; border-radius: 8px; resize: none; box-sizing: border-box; font-size: 14px; box-shadow: none;"></textarea>
+                    </div>
+                    
+                    <div style="display: none;">
+                        <h4 style="text-align: center; margin-bottom: 10px; font-size: 15px;">消息记录</h4>
+                        <div id="message-container" class="message-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 按住说话按钮 -->
+        <div class="press-hold-container" style="margin: 15px 0;">
+            <button id="btnPressAndHold" class="press-hold-button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                    <line x1="12" y1="19" x2="12" y2="23"></line>
+                    <line x1="8" y1="23" x2="16" y2="23"></line>
+                </svg>
+            </button>
         </div>
     </div>
 
@@ -657,41 +750,7 @@
     </div>
 
     <!-- 状态提示 -->
-    <div id="info_div" style="margin: 15px 0; text-align: center; font-size: 14px; padding: 10px; border-radius: 20px; background-color: rgba(67, 97, 238, 0.05);">正在连接到数字人...</div>
-
-    <!-- 文本输入和发送区域 -->
-    <div class="container" style="margin-bottom: 15px; padding: 15px;">
-        <div style="display: flex; flex-direction: column; gap: 10px;">
-            <div style="display: flex; gap: 10px;">
-                <input type="text" id="text-input" placeholder="请输入要发送的文本..." style="flex: 1; padding: 12px; border: 1px solid var(--border-color); border-radius: 20px; font-size: 14px;">
-                <div style="display: flex; gap: 5px;">
-                    <select id="message-type" style="padding: 10px; border: 1px solid var(--border-color); border-radius: 20px; background-color: var(--background-light); font-size: 14px;">
-                        <option value="echo">复述</option>
-                        <option value="chat">对话</option>
-                    </select>
-                    <button id="send-text-btn" style="padding: 10px 20px; background-color: var(--primary-color); color: white; border: none; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 500;">发送</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 结果区域 -->
-    <div class="container">
-
-        <div class="control-section" style="margin-bottom: 20px;">
-            <div style="display: flex; flex-direction: column; gap: 15px;">
-                <div>
-                    <h4 style="text-align: center; margin-bottom: 10px; font-size: 15px;">语音识别结果</h4>
-                    <textarea id="varArea" readonly placeholder="识别结果将显示在这里..." style="height: auto; box-shadow: 0 2px 8px rgba(0,0,0,0.05);"></textarea>
-                </div>
-
-                <div style=" display: none;">
-                    <h4 style="text-align: center; margin-bottom: 10px; font-size: 15px;">消息记录</h4>
-                    <div id="message-container" class="message-container"></div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div id="info_div" style="margin: 15px 0; text-align: center; font-size: 14px; padding: 10px; border-radius: 20px; background-color: rgba(67, 97, 238, 0.05); width: 100%; box-sizing: border-box;">正在连接到数字人...</div>
 
     <!-- 按钮区域 -->
     <div class="button-group" style="display: none;">
@@ -699,30 +758,12 @@
         <button id="btnStart" style="display: none;">开始</button>
         <button id="btnStop" style="display: none;" disabled>停止</button>
     </div>
-    <div class="press-hold-container" style="margin: 20px 0;">
-        <button id="btnPressAndHold" class="press-hold-button">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                <line x1="12" y1="19" x2="12" y2="23"></line>
-                <line x1="8" y1="23" x2="16" y2="23"></line>
-            </svg>
-        </button>
-    </div>
 
     <!-- 音频播放器 -->
     <audio id="audio_record" type="audio/wav" controls></audio>
 
     <!-- 音量相关控件 -->
     <div class="volume-controls" style="margin-top: 15px;">
-        <!-- 播放音量指示器 -->
-        <!-- <div style="margin-bottom: 10px;">
-            <div style="font-size:12px;color:#666;margin-bottom:5px;">播放音量</div>
-            <div id="audio-volume-indicator" style="background:#f0f0f0;border-radius:4px;height:6px;width:100%;overflow:hidden;">
-                <div id="audio-volume-bar" style="background:#2ec4b6;height:100%;width:0%;transition:width 0.1s;"></div>
-            </div>
-        </div> -->
-
         <!-- 音量阈值控制 - 改为开关 -->
         <div id="volume-threshold-control" style="margin-top: 15px; display: none;">
             <div class="switch-container" style="justify-content: space-between;">
@@ -736,11 +777,6 @@
             <span id="threshold-value-display" style="display:none;">1</span>
             <input type="range" id="threshold-slider" min="1" max="100" step="99" value="1" style="display:none;">
         </div>
-
-        <!-- 手动暂停/恢复按钮 -->
-        <!-- <div style="margin-top:15px;text-align:center;">
-            <button id="manual-pause-button" style="padding:8px 16px;background:#ff9f1c;color:white;border:none;border-radius:4px;cursor:pointer;">暂停识别</button>
-        </div> -->
 
         <!-- 清空历史记录选项 -->
         <div id="clear-history-control" style="margin-top: 15px; display: none;">
@@ -912,7 +948,6 @@ hello world 40</textarea>
     }
 
     // DOM元素引用
-    const statusElement = document.querySelector('.status');
     const currentClientElement = document.getElementById('current-client');
     const messageContainer = document.getElementById('message-container');
 
@@ -920,6 +955,19 @@ hello world 40</textarea>
     document.addEventListener('DOMContentLoaded', function() {
         // 获取客户机ID
         window.selectedClientId = getClientIdFromPreviousPage();
+        
+        // 尝试从localStorage获取数字人信息（如果从sessionStorage没有获取到）
+        if (!window.selectedDigitalHuman) {
+            try {
+                const savedDigitalHumanStr = localStorage.getItem('selectedDigitalHuman');
+                if (savedDigitalHumanStr) {
+                    window.selectedDigitalHuman = JSON.parse(savedDigitalHumanStr);
+                    console.log('从localStorage获取到数字人信息:', window.selectedDigitalHuman);
+                }
+            } catch (e) {
+                console.error('从localStorage获取数字人信息失败:', e);
+            }
+        }
         
         // 将客户机ID存入localStorage以便日后使用
         if (window.selectedClientId) {
@@ -938,31 +986,42 @@ hello world 40</textarea>
         }
         
         if (window.selectedClientId) {
-            if (currentClientElement) {
-                currentClientElement.textContent = window.selectedClientId;
+            // 获取数字人名称
+            let digitalHumanName = '未知数字人';
+            if (window.selectedDigitalHuman && window.selectedDigitalHuman.name) {
+                digitalHumanName = window.selectedDigitalHuman.name;
+                
+                // 保存数字人信息到localStorage，以便页面刷新后能够恢复
+                try {
+                    localStorage.setItem('selectedDigitalHuman', JSON.stringify(window.selectedDigitalHuman));
+                } catch (e) {
+                    console.error('保存数字人信息失败:', e);
+                }
             }
             
-            // 如果有数字人信息，显示名称
-            if (window.selectedDigitalHuman && window.selectedDigitalHuman.name) {
-                const infoDiv = document.getElementById('info_div');
-                if (infoDiv) {
-                    infoDiv.innerHTML = `<span style="color:#4361ee">🔄 正在连接到数字人: ${window.selectedDigitalHuman.name}...</span>`;
-                }
-            } else {
-                // 否则显示ID
-                const infoDiv = document.getElementById('info_div');
-                if (infoDiv) {
-                    infoDiv.innerHTML = `<span style="color:#4361ee">🔄 正在连接到数字人: ${window.selectedClientId}...</span>`;
-                }
+            // 更新数字人显示名称
+            if (currentClientElement) {
+                currentClientElement.textContent = digitalHumanName;
+            }
+            
+            // 更新连接信息提示
+            const infoDiv = document.getElementById('info_div');
+            if (infoDiv) {
+                infoDiv.innerHTML = `<span style="color:#4361ee">🔄 正在连接到数字人: ${digitalHumanName}...</span>`;
             }
         } else {
             const infoDiv = document.getElementById('info_div');
             if (infoDiv) {
-                infoDiv.innerHTML = `<span style="color:#f72585">❌ 未找到数字人ID，请返回上一页重新选择</span>`;
+                infoDiv.innerHTML = `<span style="color:#f72585">❌ 未找到数字人ID，正在返回...</span>`;
             }
             
             // 显示错误消息
-            window.addMessage('系统', '未找到数字人ID，请返回上一页重新选择', 'system');
+            window.addMessage('系统', '未找到数字人ID，正在返回选择页面', 'system');
+            
+            // 延迟1秒后跳转到index.html
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
             return;
         }
 
@@ -986,7 +1045,7 @@ hello world 40</textarea>
                     window.stopASR();
                     // 只有当有识别结果时才发送
                     if (window.full_result && window.full_result.trim() !== "") {
-                        sendTextMessage(window.full_result, window.chatType);
+                        sendTextMessage(window.full_result, window.messageType);
                     }
                     this.classList.remove('recording');
                 }
@@ -1010,7 +1069,7 @@ hello world 40</textarea>
                     window.stopASR();
                     // 只有当有识别结果时才发送
                     if (window.full_result && window.full_result.trim() !== "") {
-                        sendTextMessage(window.full_result, window.chatType);
+                        sendTextMessage(window.full_result, window.messageType);
                     }
                     this.classList.remove('recording');
                 }
@@ -1057,14 +1116,46 @@ hello world 40</textarea>
         // 添加文本发送按钮事件处理
         const sendTextBtn = document.getElementById('send-text-btn');
         const textInput = document.getElementById('text-input');
-        const messageType = document.getElementById('message-type');
+
+        // 消息类型按钮处理
+        const echoBtn = document.getElementById('echo-btn');
+        const chatBtn = document.getElementById('chat-btn');
+        
+        // 初始化消息类型
+        window.messageType = 'echo';
+        
+        // 切换消息类型按钮状态
+        function setMessageType(type) {
+            window.messageType = type;
+            
+            if (type === 'echo') {
+                echoBtn.classList.add('active');
+                chatBtn.classList.remove('active');
+            } else {
+                echoBtn.classList.remove('active');
+                chatBtn.classList.add('active');
+            }
+            
+            console.log(`已切换到${type}模式`);
+        }
+        
+        // 消息类型按钮点击事件
+        if (echoBtn && chatBtn) {
+            echoBtn.addEventListener('click', function() {
+                setMessageType('echo');
+            });
+            
+            chatBtn.addEventListener('click', function() {
+                setMessageType('chat');
+            });
+        }
 
         if (sendTextBtn && textInput) {
             sendTextBtn.addEventListener('click', function() {
                 const text = textInput.value.trim();
                 if (text) {
                     // 发送文本消息
-                    window.sendTextMessage(text, messageType.value);
+                    window.sendTextMessage(text, window.messageType);
                     // 清空输入框
                     textInput.value = '';
                 }
@@ -1077,16 +1168,9 @@ hello world 40</textarea>
                 }
             });
         }
-
-        // 添加类型选择器变更事件
-        if (messageType) {
-            messageType.addEventListener('change', function() {
-                const type = messageType.value;
-                window.chatType = type;
-                console.log(`已切换到${type}模式`);
-            });
-        }
     });
+
+    const statusElement = document.querySelector('.status');
 
     // 连接到服务器
     window.connectToServer = function(userId) {
@@ -1110,6 +1194,12 @@ hello world 40</textarea>
             if (statusElement) {
                 statusElement.textContent = '状态: 已连接';
                 statusElement.className = 'status status-connected';
+            }
+
+            // 更新连接指示器颜色 - 绿色表示已连接
+            const connectionIndicator = document.getElementById('connection-indicator');
+            if (connectionIndicator) {
+                connectionIndicator.style.backgroundColor = '#2ec4b6'; // 绿色
             }
 
             const infoDiv = document.getElementById('info_div');
@@ -1146,19 +1236,28 @@ hello world 40</textarea>
             if (data.type === 'client_selected') {
                 if (data.success) {
                     window.selectedClientId = data.client_id;
-                    if (currentClientElement) currentClientElement.textContent = window.selectedClientId;
                     
                     // 获取数字人名称
                     let digitalHumanName = '未知数字人';
                     if (window.selectedDigitalHuman && window.selectedDigitalHuman.name) {
                         digitalHumanName = window.selectedDigitalHuman.name;
+                        
+                        // 保存数字人信息到localStorage，以便页面刷新后能够恢复
+                        try {
+                            localStorage.setItem('selectedDigitalHuman', JSON.stringify(window.selectedDigitalHuman));
+                        } catch (e) {
+                            console.error('保存数字人信息失败:', e);
+                        }
                     }
+                    
+                    if (currentClientElement) currentClientElement.textContent = digitalHumanName;
                     
                     console.log(`已选择数字人: ${digitalHumanName} (ID: ${window.selectedClientId})`);
 
                     const infoDiv = document.getElementById('info_div');
                     if (infoDiv) {
-                        infoDiv.innerHTML = `<span style="color:#2ec4b6">✓ 已连接数字人 ${digitalHumanName}，按住麦克风开始说话</span>`;
+                        // infoDiv.innerHTML = `<span style="color:#2ec4b6">✓ 已连接数字人 (ID: ${window.selectedClientId})，按住麦克风开始说话</span>`;
+                        infoDiv.innerHTML = `<span style="color:#2ec4b6">✓ 已连接数字人，输入文本或按住麦克风开始对话</span>`;
                     }
 
                     // 添加选择成功消息
@@ -1171,14 +1270,19 @@ hello world 40</textarea>
 
                     const infoDiv = document.getElementById('info_div');
                     if (infoDiv) {
-                        infoDiv.innerHTML = `<span style="color:#f72585">❌ 选择数字人失败，请返回重新选择</span>`;
+                        infoDiv.innerHTML = `<span style="color:#f72585">❌ 选择数字人失败，正在返回...</span>`;
                     }
 
                     // 添加选择失败消息
-                    window.addMessage('系统', '选择数字人失败', 'system');
+                    window.addMessage('系统', '选择数字人失败，正在返回选择页面', 'system');
                     
                     // 隐藏按住说话按钮
                     document.querySelector('.press-hold-container').style.display = 'none';
+                    
+                    // 延迟1秒后跳转到index.html
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1000);
                 }
             } else if (data.type === 'message_sent') {
                 console.log(`消息已发送到数字人: ${data.client_id}`);
@@ -1198,14 +1302,19 @@ hello world 40</textarea>
                     // 显示断开连接的消息
                     const infoDiv = document.getElementById('info_div');
                     if (infoDiv) {
-                        infoDiv.innerHTML = `<span style="color:#f72585">⚠️ 数字人已断开连接，请返回重新选择</span>`;
+                        infoDiv.innerHTML = `<span style="color:#f72585">⚠️ 数字人已断开连接，正在返回...</span>`;
                     }
                     
                     // 隐藏按住说话按钮
                     document.querySelector('.press-hold-container').style.display = 'none';
                     
                     // 显示错误消息
-                    window.addMessage('系统', '数字人已断开连接，语音对话已停止', 'system');
+                    window.addMessage('系统', '数字人已断开连接，正在返回选择页面', 'system');
+                    
+                    // 延迟1秒后跳转到index.html
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1000);
                 }
             } else if (data.type === 'error') {
                 console.error(`WebSocket错误: ${data.message}`);
@@ -1227,6 +1336,11 @@ hello world 40</textarea>
                 statusElement.className = 'status status-disconnected';
             }
 
+            const connectionIndicator = document.getElementById('connection-indicator');
+            if (connectionIndicator) {
+                connectionIndicator.style.backgroundColor = '#f72585'; // 红色
+            }
+
             window.selectedClientId = null;
             
             const infoDiv = document.getElementById('info_div');
@@ -1244,6 +1358,11 @@ hello world 40</textarea>
             setTimeout(() => {
                 window.connectToServer(window.userId);
             }, 5000);
+
+            // 延迟1秒后跳转到index.html
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
         };
 
         window.socket.onerror = (error) => {

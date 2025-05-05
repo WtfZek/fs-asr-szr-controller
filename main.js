@@ -39,7 +39,7 @@ var isAudioMonitoring = false;
 var micMuteDuration = 0; // 麦克风静音持续时间(毫秒)
 var recoveryCheckInterval = 100; // 恢复检查间隔(毫秒)
 
-window.chatType = 'chat'; // 默认聊天类型为对话
+window.messageType = 'chat'; // 默认聊天类型为对话
 
 addMicMuteDurationControl();
 
@@ -1656,7 +1656,7 @@ window.sendTextMessage = function(text, type) {
     if(text === "" || text == null) {
         return;
     }
-    const newType = type? type : window.chatType? window.chatType : 'echo';
+    const newType = type? type : window.messageType? window.messageType : 'echo';
     // 使用外部定义的 socket 和 selectedClientId
     if (window.socket && window.socket.readyState === WebSocket.OPEN && window.selectedClientId) {
         // 根据服务端API，只需发送message字段
